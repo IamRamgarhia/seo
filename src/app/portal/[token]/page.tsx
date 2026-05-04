@@ -16,6 +16,7 @@ import { audits, clients, tasks } from "@/db/schema";
 import { ScoreGauge } from "@/components/ui/score-gauge";
 import { getSetting } from "@/lib/settings-store";
 import { SnapshotSparklines } from "@/components/snapshot-sparklines";
+import { PortalChat } from "./portal-chat";
 
 export default async function PortalPage({
   params,
@@ -318,6 +319,8 @@ export default async function PortalPage({
           {brandName ? `${brandName} via SEO tool` : "SEO tool"}
         </footer>
       </div>
+
+      <PortalChat token={token} />
     </div>
   );
 }

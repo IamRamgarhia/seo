@@ -244,6 +244,102 @@ export async function composeGbpPost(opts: {
   return { ok: true, text: raw.trim().replace(/^["']|["']$/g, "") };
 }
 
+// =============== Daily GBP post idea generator ===============
+
+const IDEAS_SYSTEM = `You generate a 7-day Google Business Profile posting calendar tailored to one local business. Output JSON only — an array of exactly 7 objects, one per day. Each object: { "day": "Mon"|"Tue"|...|"Sun", "postType": "offer"|"event"|"update"|"product"|"story", "title": "<hook line, 8-14 words>", "angle": "<one sentence describing what the post is about>", "cta": "<CTA verb phrase, e.g. 'Book a slot today'>" }.
+
+Rules:
+- Mix post types across the week — at least 3 different types.
+- Each idea must be concretely tied to the business / niche / city given. No generic content.
+- Hooks should pass the "would-a-local-person-stop-scrolling" test.
+- Output ONLY the JSON array. No prose, no code fences, no commentary.`;
+
+export type GbpPostIdea = {
+  day: string;
+  postType: "offer" | "event" | "update" | "product" | "story";
+  title: string;
+  angle: string;
+  cta: string;
+};
+
+export type IdeasResult =
+  | { ok: true; ideas: GbpPostIdea[] }
+  | { ok: false; error: string };
+
+export async function generateGbpPostIdeas(opts: {
+  clientId: number;
+  clientName: string;
+  niche: string | null;
+  city: string | null;
+  businessType?: string | null;
+  description?: string | null;
+}): Promise<IdeasResult> {
+  const userPrompt = [
+    `Business: ${opts.clientName}`,
+    opts.businessType ? `Business type: ${opts.businessType}` : "",
+    opts.niche ? `Niche: ${opts.niche}` : "",
+    opts.city ? `City: ${opts.city}` : "",
+    opts.description
+      ? `Description: ${opts.description.slice(0, 300)}`
+      : "",
+    "",
+    `Generate 7 daily GBP post ideas (Mon-Sun) for the upcoming week. JSON array only.`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const raw = await callAI({
+    system: IDEAS_SYSTEM,
+    user: userPrompt,
+    maxTokens: 900,
+    temperature: 0.7,
+    timeoutMs: 30_000,
+    feature: "content_idea",
+    clientId: opts.clientId,
+  });
+  if (!raw) {
+    return {
+      ok: false,
+      error: "AI provider didn't respond. Set up a key in Settings.",
+    };
+  }
+  // Strip code fences if the model added them despite instructions.
+  const cleaned = raw
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+  const start = cleaned.indexOf("[");
+  const end = cleaned.lastIndexOf("]");
+  if (start === -1 || end === -1 || end <= start) {
+    return { ok: false, error: "AI returned an unexpected format." };
+  }
+  try {
+    const parsed = JSON.parse(cleaned.slice(start, end + 1)) as GbpPostIdea[];
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return { ok: false, error: "AI returned an empty list." };
+    }
+    const valid = parsed
+      .filter(
+        (p) =>
+          typeof p?.day === "string" &&
+          typeof p?.title === "string" &&
+          typeof p?.angle === "string" &&
+          typeof p?.cta === "string" &&
+          ["offer", "event", "update", "product", "story"].includes(
+            (p as { postType?: string }).postType ?? "",
+          ),
+      )
+      .slice(0, 7);
+    if (valid.length === 0) {
+      return { ok: false, error: "AI returned no valid ideas." };
+    }
+    return { ok: true, ideas: valid };
+  } catch {
+    return { ok: false, error: "Couldn't parse AI response." };
+  }
+}
+
 /** Used by health checks: confirm the location is reachable via the API. */
 export async function pingGbpLocation(opts: {
   clientId: number;

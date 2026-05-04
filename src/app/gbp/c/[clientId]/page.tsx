@@ -16,6 +16,7 @@ import { PageHeader } from "@/components/shell/page-header";
 import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { GbpRunner } from "./gbp-runner";
 import { GbpPostComposer } from "./post-composer";
+import { GbpPostIdeas } from "./post-ideas";
 import { playbookFor, scoreGbpProfile } from "@/lib/gbp-playbook";
 import { ClientInfoCard } from "@/components/client-info-card";
 import {
@@ -120,6 +121,15 @@ export default async function PerClientGbpPage({
         clientName={client.name}
         niche={client.niche}
         city={client.city}
+      />
+
+      <GbpPostIdeas
+        clientId={client.id}
+        clientName={client.name}
+        niche={client.niche}
+        city={client.city}
+        businessType={client.businessType}
+        description={client.description}
       />
 
       <GbpPlaybookSection

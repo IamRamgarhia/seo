@@ -107,7 +107,12 @@ const groups: { title: string; items: Section[] }[] = [
     items: [
       { href: "/links", label: "Smart links", icon: Link2 },
       { href: "/tools/link-graph", label: "Link graph", icon: Network },
+      { href: "/tools/link-recommender", label: "AI link recommender", icon: Sparkles },
       { href: "/tools/content-grader", label: "Content grader", icon: Gauge },
+      { href: "/tools/refresh", label: "Refresh detector", icon: TrendingDown },
+      { href: "/tools/eeat-audit", label: "E-E-A-T audit", icon: Stethoscope },
+      { href: "/tools/content-helpers", label: "Image + tag helpers", icon: ImageIcon },
+      { href: "/meta-rewrite", label: "Meta rewrite batch", icon: Wand2 },
       { href: "/tools/backlink-discovery", label: "Backlink discovery", icon: Link2 },
       { href: "/tools/search-volume", label: "Search volume", icon: Sparkles },
       { href: "/tools/health-check", label: "Health check", icon: Stethoscope },
@@ -129,6 +134,7 @@ const groups: { title: string; items: Section[] }[] = [
     title: "Account",
     items: [
       { href: "/learn", label: "Learn", icon: GraduationCap },
+      { href: "/knowledge", label: "SEO knowledge hub", icon: GraduationCap },
       { href: "/settings", label: "Settings", icon: Settings },
       { href: "/settings/ai-learning", label: "AI learning", icon: Sparkles },
     ],

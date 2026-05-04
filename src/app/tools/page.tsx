@@ -4,23 +4,27 @@ import Link from "next/link";
 import {
   Activity,
   Code2,
+  Compass,
   Eye,
   FileText,
   Flame,
   Gauge,
   Globe,
+  Image as ImageIcon,
   Link as LinkIcon,
   Link2,
   ListChecks,
   Lock,
   Map,
   Network,
+  RefreshCw,
   ScanText,
   ServerCog,
   ShieldCheck,
   Sparkles,
   Stethoscope,
   Video,
+  Wand2,
   Wrench,
   Zap,
 } from "lucide-react";
@@ -33,6 +37,54 @@ const tools = [
     title: "Full SEO health check ⭐",
     description:
       "One URL → audit + robots + hreflang + security + Core Web Vitals + image audit + redirect chain in parallel. Save snapshots to compare before / after.",
+    accent: "violet",
+  },
+  {
+    href: "/tools/eeat-audit",
+    icon: ShieldCheck,
+    title: "E-E-A-T audit",
+    description:
+      "Score any URL on Experience / Expertise / Authoritativeness / Trust. Detects bylines, schema, citations, trust pages, then AI writes a fix punch list.",
+    accent: "emerald",
+  },
+  {
+    href: "/tools/refresh",
+    icon: RefreshCw,
+    title: "Content refresh detector",
+    description:
+      "Compare your published page to top-10 SERP. Surfaces missing topics, missing sections, plus a concrete refresh plan a writer can execute.",
+    accent: "amber",
+  },
+  {
+    href: "/tools/link-recommender",
+    icon: Sparkles,
+    title: "AI internal-link recommender",
+    description:
+      "Crawl your site + AI proposes 3-5 internal links with anchor + target + context snippet. Closes the gap on internal-linking opportunities humans miss.",
+    accent: "violet",
+  },
+  {
+    href: "/meta-rewrite",
+    icon: Wand2,
+    title: "Meta rewrite batch (low-CTR)",
+    description:
+      "Pulls GSC data, finds your worst CTR vs position. AI rewrites title + meta in 2 variants per page. One-click push to WordPress if connected.",
+    accent: "rose",
+  },
+  {
+    href: "/tools/content-helpers",
+    icon: ImageIcon,
+    title: "Cover-image prompts + category suggester",
+    description:
+      "Two AI helpers: 3 image-gen prompts in distinct visual styles for any post, plus primary category + 5-10 SEO tags scoped to your existing taxonomy.",
+    accent: "rose",
+  },
+  {
+    href: "/knowledge",
+    icon: Compass,
+    title: "SEO knowledge hub",
+    description:
+      "Ranking signals, topical authority, blogging rules, page-speed by stack, GBP playbook, knowledge graph, rich snippets, E-E-A-T — the in-app reference.",
     accent: "violet",
   },
   {
