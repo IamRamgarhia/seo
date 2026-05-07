@@ -250,6 +250,22 @@ async function callAnthropic(args: CallArgs): Promise<string | null> {
   const c = new AbortController();
   const t = setTimeout(() => c.abort(), args.timeoutMs);
   try {
+    // Anthropic prompt caching: when the system prompt is ≥1024 tokens
+    // (~4000 chars), mark it as ephemeral cache. Subsequent calls within
+    // 5 minutes that share the same system block are billed at ~10% of
+    // input cost. Big win for repeat audits / chats with the same skill.
+    const systemStr = args.system ?? "";
+    const useCache = systemStr.length > 4000;
+    const systemPayload = useCache
+      ? [
+          {
+            type: "text",
+            text: systemStr,
+            cache_control: { type: "ephemeral" },
+          },
+        ]
+      : systemStr;
+
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       signal: c.signal,
@@ -262,7 +278,7 @@ async function callAnthropic(args: CallArgs): Promise<string | null> {
         model: "claude-haiku-4-5-20251001",
         max_tokens: args.max,
         temperature: args.temperature,
-        system: args.system,
+        system: systemPayload,
         messages: [{ role: "user", content: args.user }],
       }),
     });

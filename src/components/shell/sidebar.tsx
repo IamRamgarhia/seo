@@ -151,6 +151,7 @@ const groups: { title: string; items: Section[] }[] = [
       { href: "/tools/news-headline", label: "News headline audit", icon: Newspaper },
       { href: "/tools/auto-link", label: "Auto-link suggester", icon: Link2 },
       { href: "/tools/redirects-manager", label: "Redirect manager", icon: GitMerge },
+      { href: "/tools/canonical-audit", label: "Canonical audit", icon: GitMerge },
       { href: "/tools/trending", label: "Trending ideas", icon: Flame },
       { href: "/tools/traffic-drop", label: "Traffic-drop diagnostic", icon: TrendingDown },
       { href: "/tools/ai-schema", label: "AI schema generator", icon: Sparkles },

@@ -246,6 +246,17 @@ async function callAnthropic(args: Args): Promise<string | null> {
       }
       return { role: m.role, content: m.content };
     });
+    // Cache the system prompt when large enough for it to matter (≥1024 tok)
+    const useCache = (args.system ?? "").length > 4000;
+    const systemPayload = useCache
+      ? [
+          {
+            type: "text",
+            text: args.system,
+            cache_control: { type: "ephemeral" },
+          },
+        ]
+      : args.system;
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       signal: c.signal,
@@ -258,7 +269,7 @@ async function callAnthropic(args: Args): Promise<string | null> {
         model: "claude-haiku-4-5-20251001",
         max_tokens: args.max,
         temperature: args.temperature,
-        system: args.system,
+        system: systemPayload,
         messages,
       }),
     });

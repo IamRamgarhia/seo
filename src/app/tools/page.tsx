@@ -210,6 +210,14 @@ const tools = [
     accent: "violet",
   },
   {
+    href: "/tools/canonical-audit",
+    icon: GitMerge,
+    title: "Canonical conflict detector",
+    description:
+      "Crawl + flag every page where rel=canonical is missing, multiple, off-host, broken, redirect-target, or conflicts with noindex. Catches the silent indexation killer.",
+    accent: "amber",
+  },
+  {
     href: "/tools/redirects-manager",
     icon: CornerDownRight,
     title: "Redirect manager + 404 monitor",
