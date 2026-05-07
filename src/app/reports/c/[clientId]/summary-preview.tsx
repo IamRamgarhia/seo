@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Loader2, Sparkles } from "lucide-react";
 import { previewExecSummary } from "./preview-actions";
 import { AiFeedback } from "@/components/ai-feedback";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 export function SummaryPreview({ clientId }: { clientId: number }) {
   const [, startTransition] = useTransition();
@@ -30,11 +31,14 @@ export function SummaryPreview({ clientId }: { clientId: number }) {
               {summary}
             </p>
             <div className="flex items-center justify-between gap-3">
-              <AiFeedback
-                feature="exec_summary"
-                aiOutput={summary}
-                clientId={clientId}
-              />
+              <div className="flex flex-wrap items-center gap-2">
+                <AiFeedback
+                  feature="exec_summary"
+                  aiOutput={summary}
+                  clientId={clientId}
+                />
+                <AiDisclaimer variant="inline" />
+              </div>
               <button
                 type="button"
                 onClick={() => {

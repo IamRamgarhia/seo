@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Bot, Loader2, MessageCircle, Send, Sparkles, X } from "lucide-react";
 import { portalChat, type PortalChatMessage } from "./chat-actions";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 const SUGGESTIONS = [
   "How are we doing this month?",
@@ -108,15 +109,17 @@ export function PortalChat({ token }: { token: string }) {
             )}
 
             {messages.map((m, i) => (
-              <div
-                key={i}
-                className={
-                  m.role === "user"
-                    ? "ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-violet-500/15 px-3 py-2 text-violet-50 ring-1 ring-inset ring-violet-500/30"
-                    : "max-w-[90%] rounded-2xl rounded-bl-md bg-white/[0.04] px-3 py-2 ring-1 ring-inset ring-white/5"
-                }
-              >
-                <div className="whitespace-pre-wrap">{m.content}</div>
+              <div key={i} className="space-y-1">
+                <div
+                  className={
+                    m.role === "user"
+                      ? "ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-violet-500/15 px-3 py-2 text-violet-50 ring-1 ring-inset ring-violet-500/30"
+                      : "max-w-[90%] rounded-2xl rounded-bl-md bg-white/[0.04] px-3 py-2 ring-1 ring-inset ring-white/5"
+                  }
+                >
+                  <div className="whitespace-pre-wrap">{m.content}</div>
+                </div>
+                {m.role === "assistant" && <AiDisclaimer variant="inline" />}
               </div>
             ))}
 

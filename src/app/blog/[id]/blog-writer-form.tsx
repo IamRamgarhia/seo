@@ -20,6 +20,7 @@ import {
   saveBlogDraft,
 } from "./actions";
 import { AiFeedback } from "@/components/ai-feedback";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 type Suggestion = {
   source: "quick_win" | "niche";
@@ -352,13 +353,14 @@ export function BlogWriterForm({
                 Edit inline if needed. Save as a draft, copy markdown, or
                 download as a file.
               </p>
-              <div className="mt-2">
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 <AiFeedback
                   feature="blog_draft"
                   aiOutput={markdown}
                   clientId={clientId}
                   size="sm"
                 />
+                <AiDisclaimer variant="inline" />
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">

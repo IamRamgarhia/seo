@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 import { runRefresh, type RefreshState } from "./actions";
 import { AiFeedback } from "@/components/ai-feedback";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 export function RefreshForm() {
   const [state, formAction, pending] = useActionState<RefreshState | null, FormData>(
@@ -119,6 +120,7 @@ export function RefreshForm() {
                   <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
                     {state.plan.brief}
                   </pre>
+                  <AiDisclaimer />
                 </section>
               )}
 

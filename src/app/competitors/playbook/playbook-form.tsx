@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { playbookToTasks, runCompetitorAnalysis, type PlaybookState } from "./actions";
 import { AiFeedback } from "@/components/ai-feedback";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 export function PlaybookForm({
   clients,
@@ -101,11 +102,14 @@ export function PlaybookForm({
                   {state.playbook.synthesis}
                 </p>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <AiFeedback
-                    feature="general"
-                    aiOutput={state.playbook.synthesis}
-                    size="sm"
-                  />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <AiFeedback
+                      feature="general"
+                      aiOutput={state.playbook.synthesis}
+                      size="sm"
+                    />
+                    <AiDisclaimer variant="inline" />
+                  </div>
                   <PlaybookToTasksButton
                     clients={clients}
                     competitorUrl={state.playbook.competitorUrl}

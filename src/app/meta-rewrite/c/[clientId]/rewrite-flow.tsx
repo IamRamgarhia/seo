@@ -15,6 +15,7 @@ import {
   type FindState,
 } from "../../actions";
 import { AiFeedback } from "@/components/ai-feedback";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 export function RewriteFlow({
   clientId,
@@ -192,6 +193,7 @@ function CandidateCard({
                 size="sm"
               />
             </div>
+            <AiDisclaimer variant="inline" />
           </div>
         ) : (
           <p className="rounded-md bg-white/5 px-3 py-2.5 text-xs text-muted-foreground">

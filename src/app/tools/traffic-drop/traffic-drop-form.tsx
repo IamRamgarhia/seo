@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Loader2, TrendingDown } from "lucide-react";
 import { runDiagnostic, type TrafficDropState } from "./actions";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 export function TrafficDropForm({ properties }: { properties: string[] }) {
   const [state, formAction, pending] = useActionState<
@@ -88,6 +89,7 @@ export function TrafficDropForm({ properties }: { properties: string[] }) {
               <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
                 {state.result.diagnosis}
               </pre>
+              <AiDisclaimer />
             </section>
           )}
 

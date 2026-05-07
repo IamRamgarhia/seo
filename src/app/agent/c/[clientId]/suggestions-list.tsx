@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AiFeedback } from "@/components/ai-feedback";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 import {
   applySuggestion,
   dismissSuggestion,
@@ -289,13 +290,14 @@ function SuggestionCard({
           </p>
         )}
 
-        <div className="pt-1">
+        <div className="flex flex-wrap items-center gap-2 pt-1">
           <AiFeedback
             feature="content_idea"
             aiOutput={s.suggestedValue}
             clientId={clientId}
             size="sm"
           />
+          <AiDisclaimer variant="inline" />
         </div>
 
         <div className="flex flex-wrap items-center gap-2 pt-1">

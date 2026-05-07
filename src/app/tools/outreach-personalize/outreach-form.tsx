@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { Check, Copy, Loader2, Send, Sparkles } from "lucide-react";
 import { runPersonalize, type OutreachState } from "./actions";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 export function OutreachForm() {
   const [state, formAction, pending] = useActionState<
@@ -167,6 +168,7 @@ export function OutreachForm() {
               ))}
             </div>
           )}
+          <AiDisclaimer />
         </section>
       )}
     </>

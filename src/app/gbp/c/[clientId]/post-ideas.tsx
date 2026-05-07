@@ -14,6 +14,7 @@ import {
   type GbpPostIdea,
 } from "@/app/gbp/actions";
 import { AiFeedback } from "@/components/ai-feedback";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 const TYPE_TONE: Record<GbpPostIdea["postType"], string> = {
   offer: "bg-rose-500/15 text-rose-300 ring-rose-500/30",
@@ -161,7 +162,7 @@ export function GbpPostIdeas({
               </li>
             ))}
           </ul>
-          <div className="border-t border-white/[0.05] px-5 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.05] px-5 py-3">
             <AiFeedback
               feature="content_idea"
               aiOutput={ideas
@@ -170,6 +171,7 @@ export function GbpPostIdeas({
               clientId={clientId}
               size="sm"
             />
+            <AiDisclaimer variant="inline" />
           </div>
         </>
       )}

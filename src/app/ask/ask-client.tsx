@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { askTheTool } from "./actions";
 import { AiFeedback } from "@/components/ai-feedback";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 type Turn =
   | { kind: "user"; text: string }
@@ -139,12 +140,15 @@ export function AskClient({
                 >
                   <div>{t.text}</div>
                   {t.kind === "tool" && (
-                    <AiFeedback
-                      feature="general"
-                      aiOutput={t.text}
-                      clientId={clientId ? Number(clientId) : null}
-                      size="sm"
-                    />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <AiFeedback
+                        feature="general"
+                        aiOutput={t.text}
+                        clientId={clientId ? Number(clientId) : null}
+                        size="sm"
+                      />
+                      <AiDisclaimer variant="inline" />
+                    </div>
                   )}
                 </div>
               </div>

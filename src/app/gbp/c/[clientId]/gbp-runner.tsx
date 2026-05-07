@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AiFeedback } from "@/components/ai-feedback";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 import {
   runGbpScrape,
   generateReviewReply,
@@ -265,6 +266,7 @@ function ReviewRow({
                   clientId={clientId}
                   size="sm"
                 />
+                <AiDisclaimer variant="inline" />
                 <span className="text-[11px] text-muted-foreground">
                   Paste into the reply box on GBP, or use the official
                   posting flow if your Google account has GBP scope.

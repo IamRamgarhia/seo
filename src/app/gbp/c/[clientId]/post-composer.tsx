@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { composeGbpPost } from "@/app/gbp/actions";
 import { AiFeedback } from "@/components/ai-feedback";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 const POST_TYPES = [
   { id: "offer", label: "Offer / promo", icon: Gift },
@@ -161,12 +162,15 @@ export function GbpPostComposer({
               className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <AiFeedback
-                feature="content_idea"
-                aiOutput={draft}
-                clientId={clientId}
-                size="sm"
-              />
+              <div className="flex items-center gap-2">
+                <AiFeedback
+                  feature="content_idea"
+                  aiOutput={draft}
+                  clientId={clientId}
+                  size="sm"
+                />
+                <AiDisclaimer variant="inline" />
+              </div>
               <button
                 type="button"
                 onClick={copy}

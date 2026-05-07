@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { seoChat, type SeoChatMessage, type AnswerLength } from "./actions";
 import { SEO_SKILLS, type SeoSkillId } from "@/lib/seo-skills";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 
@@ -226,6 +227,7 @@ export function SeoChatUi() {
                   {m.content}
                 </pre>
               </div>
+              {m.role === "assistant" && <AiDisclaimer variant="inline" />}
             </div>
           ))}
 

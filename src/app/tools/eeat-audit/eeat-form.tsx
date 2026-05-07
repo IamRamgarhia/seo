@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { runEeatAudit, type EeatState } from "./actions";
 import { AiFeedback } from "@/components/ai-feedback";
+import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 export function EeatForm() {
   const [state, formAction, pending] = useActionState<EeatState | null, FormData>(
@@ -213,6 +214,7 @@ export function EeatForm() {
               <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
                 {state.result.brief}
               </pre>
+              <AiDisclaimer />
             </section>
           )}
         </>
