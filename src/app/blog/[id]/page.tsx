@@ -75,13 +75,22 @@ export default async function BlogClientPage({
           { label: client.name },
         ]}
         actions={
-          <Link
-            href={`/clients/${client.id}`}
-            className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
-          >
-            Open client
-            <ExternalLink className="size-3.5" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/blog/${client.id}/bulk`}
+              className="inline-flex items-center gap-1 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-sm text-violet-200 hover:bg-violet-500/20"
+            >
+              <Wand2 className="size-3.5" />
+              Bulk plan + write
+            </Link>
+            <Link
+              href={`/clients/${client.id}`}
+              className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
+            >
+              Open client
+              <ExternalLink className="size-3.5" />
+            </Link>
+          </div>
         }
       />
 

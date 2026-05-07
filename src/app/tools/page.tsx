@@ -617,6 +617,79 @@ const tools = [
       "Timeline of every Google algorithm update with confirmed dates. Correlate against your traffic drops.",
     accent: "violet",
   },
+  // Utility / writer tools — smallseotools-style. All run locally in the browser.
+  {
+    href: "/tools/word-counter",
+    icon: ScanText,
+    title: "Word counter",
+    description:
+      "Words, characters, sentences, paragraphs, reading time, and keyword density — live as you type. All local.",
+    accent: "cyan",
+  },
+  {
+    href: "/tools/case-converter",
+    icon: ScanText,
+    title: "Case converter",
+    description:
+      "UPPERCASE, lowercase, Title Case, Sentence case, kebab-case, snake_case, camelCase, PascalCase, inverse, reverse.",
+    accent: "cyan",
+  },
+  {
+    href: "/tools/json-formatter",
+    icon: Code2,
+    title: "JSON formatter / validator",
+    description:
+      "Pretty-print, validate, and minify JSON locally. Shows size diff between formatted and minified.",
+    accent: "cyan",
+  },
+  {
+    href: "/tools/encode-decode",
+    icon: Lock,
+    title: "Encode / decode",
+    description:
+      "Base64, URL-encoding, and HTML-entity encoding in one tool with encode + decode toggle.",
+    accent: "cyan",
+  },
+  {
+    href: "/tools/hash-generator",
+    icon: Lock,
+    title: "Hash generator",
+    description:
+      "MD5, SHA-1, SHA-256, SHA-384, SHA-512 — computed locally with Web Crypto + pure-JS MD5.",
+    accent: "cyan",
+  },
+  {
+    href: "/tools/lorem-ipsum",
+    icon: FileText,
+    title: "Lorem ipsum generator",
+    description:
+      "Generate placeholder text in paragraphs, sentences, or words.",
+    accent: "cyan",
+  },
+  {
+    href: "/tools/password-generator",
+    icon: Lock,
+    title: "Password generator",
+    description:
+      "Cryptographically random passwords with strength meter. Tune length, character classes, exclude ambiguous characters.",
+    accent: "cyan",
+  },
+  {
+    href: "/tools/color-converter",
+    icon: Layers,
+    title: "Color converter + WCAG contrast",
+    description:
+      "Convert between HEX / RGB / HSL / CMYK and check WCAG AA/AAA contrast against white and black.",
+    accent: "cyan",
+  },
+  {
+    href: "/tools/text-diff",
+    icon: GitMerge,
+    title: "Text diff",
+    description:
+      "Line-level diff between two pieces of text. Compare two title variants, two meta descriptions, or copy edits.",
+    accent: "cyan",
+  },
 ];
 
 const accentMap: Record<string, string> = {
