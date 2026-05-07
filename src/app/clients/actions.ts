@@ -165,6 +165,19 @@ export async function createClient(
 
   revalidatePath("/");
   revalidatePath("/clients");
+
+  // Fire an AI audit in the background — by the time the user finishes the
+  // onboarding wizard, an initial 25-point audit will be ready on
+  // /clients/<id>/ai-audit. Best-effort; failures are silent.
+  void (async () => {
+    try {
+      const { runAiSiteAudit } = await import("@/lib/ai-site-audit");
+      await runAiSiteAudit({ clientId: row.id, url: parsed.data.url });
+    } catch {
+      // Silent — user can re-run from the AI audit page if it failed.
+    }
+  })();
+
   // First-add: drop into the smart-onboarding wizard so they get a 30-day
   // plan generated end-to-end. Existing clients still go straight to the
   // detail page (their wizard is reachable via the "Re-plan" button).

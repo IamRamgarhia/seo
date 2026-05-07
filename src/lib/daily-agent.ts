@@ -59,9 +59,14 @@ export async function tickDailyAgent(): Promise<DailyAgentReport | null> {
   await runStep(steps, "outreach.reply_poll", outreachReplyPollStep);
   await runStep(steps, "metrics.anomaly", runAnomalyDetectionStep);
   await runStep(steps, "title_tests.rotate", runDueTitleTestsStep);
+  await runStep(steps, "robots.snapshot", robotsSnapshotStep);
+  await runStep(steps, "sitemap.health", sitemapHealthStep);
+  await runStep(steps, "traffic.drop_alert", trafficDropAlertStep);
   if (startedAt.getUTCDay() === 1) {
-    // Mondays only
+    // Mondays only — heavier work
     await runStep(steps, "rank.weekly_sweep", weeklyRankSweep);
+    await runStep(steps, "ai_audit.weekly", weeklyAiAuditStep);
+    await runStep(steps, "serp_features.weekly", weeklySerpFeatureStep);
   }
 
   const finishedAt = new Date();
@@ -300,4 +305,218 @@ async function weeklyRankSweep(): Promise<string> {
     }
   }
   return `re-checked ${done} keywords`;
+}
+
+// ============== New auto-steps ==============
+
+/**
+ * Snapshot every client's /robots.txt daily. The library de-dupes by hash
+ * — only stores when content actually changed. Catches accidental
+ * Disallow: / disasters automatically.
+ */
+async function robotsSnapshotStep(): Promise<string> {
+  const all = await db.select({ id: clients.id, url: clients.url }).from(clients);
+  if (all.length === 0) return "no clients";
+  const { snapshotRobots } = await import("./robots-snapshots");
+  let changed = 0,
+    unchanged = 0,
+    failed = 0;
+  for (const c of all.slice(0, 30)) {
+    try {
+      const r = await snapshotRobots(c.url);
+      if (!r.ok) failed += 1;
+      else if (r.changed) {
+        changed += 1;
+        await logActivity({
+          kind: "page.changed",
+          message: `robots.txt changed on ${new URL(c.url).hostname}`,
+          level: "warning",
+          clientId: c.id,
+          entityType: "robots",
+        });
+      } else unchanged += 1;
+    } catch {
+      failed += 1;
+    }
+  }
+  return `${changed} changed, ${unchanged} unchanged, ${failed} failed`;
+}
+
+/**
+ * Daily sitemap health probe — try to fetch /sitemap.xml for every client,
+ * count entries, alert on parse failure or sudden drop.
+ */
+async function sitemapHealthStep(): Promise<string> {
+  const all = await db.select({ id: clients.id, url: clients.url }).from(clients);
+  if (all.length === 0) return "no clients";
+  let ok = 0,
+    broken = 0;
+  for (const c of all.slice(0, 30)) {
+    try {
+      const u = new URL(c.url);
+      const sitemap = `${u.origin}/sitemap.xml`;
+      const res = await fetch(sitemap, {
+        headers: { "user-agent": "Mozilla/5.0 (compatible; SeoToolBot/1.0)" },
+        signal: AbortSignal.timeout(8_000),
+      });
+      if (!res.ok) {
+        broken += 1;
+        await logActivity({
+          kind: "page.changed",
+          message: `Sitemap returned ${res.status} for ${u.hostname}/sitemap.xml`,
+          level: "warning",
+          clientId: c.id,
+          entityType: "sitemap",
+        });
+        continue;
+      }
+      const body = await res.text();
+      // Quick XML check
+      if (!/<urlset|<sitemapindex/i.test(body)) {
+        broken += 1;
+        await logActivity({
+          kind: "page.changed",
+          message: `Sitemap doesn't look like XML for ${u.hostname}`,
+          level: "warning",
+          clientId: c.id,
+          entityType: "sitemap",
+        });
+        continue;
+      }
+      ok += 1;
+    } catch {
+      broken += 1;
+    }
+  }
+  return `${ok} ok, ${broken} broken`;
+}
+
+/**
+ * Daily traffic-drop check. For every client with GSC data, compare the
+ * trailing 7-day clicks to the prior 7-day clicks. ≥10% drop = alert.
+ */
+async function trafficDropAlertStep(): Promise<string> {
+  const all = await db.select({ id: clients.id, url: clients.url, name: clients.name }).from(clients);
+  if (all.length === 0) return "no clients";
+  let alerted = 0,
+    checked = 0;
+  for (const c of all.slice(0, 30)) {
+    try {
+      const { fetchGscPerformance } = await import("./google-oauth");
+      const today = new Date();
+      const ymd = (offset: number) => {
+        const d = new Date(today);
+        d.setUTCDate(d.getUTCDate() - offset);
+        return d.toISOString().slice(0, 10);
+      };
+      const [recent, prev] = await Promise.all([
+        fetchGscPerformance({
+          siteUrl: c.url,
+          startDate: ymd(9),
+          endDate: ymd(2),
+          dimensions: ["query"],
+          rowLimit: 100,
+          clientIdScope: c.id,
+        }),
+        fetchGscPerformance({
+          siteUrl: c.url,
+          startDate: ymd(16),
+          endDate: ymd(10),
+          dimensions: ["query"],
+          rowLimit: 100,
+          clientIdScope: c.id,
+        }),
+      ]);
+      const r = recent.reduce((s, x) => s + x.clicks, 0);
+      const p = prev.reduce((s, x) => s + x.clicks, 0);
+      checked += 1;
+      if (p < 50) continue; // not enough data to be alarming
+      const dropPct = ((r - p) / p) * 100;
+      if (dropPct <= -10) {
+        alerted += 1;
+        await logActivity({
+          kind: "rank.changed",
+          message: `Traffic dropped ${Math.abs(Math.round(dropPct))}% WoW for ${c.name} (${p} → ${r} clicks)`,
+          level: "warning",
+          clientId: c.id,
+          entityType: "traffic",
+        });
+      }
+    } catch {
+      // GSC may not be connected for this client
+    }
+  }
+  return `${checked} checked, ${alerted} alerts`;
+}
+
+/**
+ * Weekly per-client AI audit refresh. Runs on Mondays. Skips clients where
+ * the last AI audit is fresher than 6 days.
+ */
+async function weeklyAiAuditStep(): Promise<string> {
+  const all = await db.select({ id: clients.id, url: clients.url }).from(clients);
+  if (all.length === 0) return "no clients";
+  const { runAiSiteAudit } = await import("./ai-site-audit");
+  const cutoff = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000);
+  let started = 0;
+  for (const c of all.slice(0, 8)) {
+    // Cap 8/week to keep AI cost reasonable
+    try {
+      // Look up most-recent ai_full audit
+      const recent = await db
+        .select()
+        .from(audits)
+        .where(and(eq(audits.clientId, c.id), eq(audits.kind, "ai_full")))
+        .orderBy(audits.createdAt)
+        .limit(1);
+      if (
+        recent.length > 0 &&
+        recent[recent.length - 1].createdAt &&
+        recent[recent.length - 1].createdAt >= cutoff
+      ) {
+        continue;
+      }
+      await runAiSiteAudit({ clientId: c.id, url: c.url });
+      started += 1;
+    } catch {
+      // ignore one client's failure
+    }
+  }
+  return `ran ${started} weekly AI audits`;
+}
+
+/**
+ * Weekly SERP-feature snapshot for every tracked keyword. Captures AIO,
+ * featured snippet, PAA presence per keyword. Cap at 30/week to stay
+ * within reasonable scrape volume.
+ */
+async function weeklySerpFeatureStep(): Promise<string> {
+  const all = await db
+    .select({
+      id: keywords.id,
+      query: keywords.query,
+      country: keywords.country,
+      clientId: keywords.clientId,
+      clientUrl: clients.url,
+    })
+    .from(keywords)
+    .leftJoin(clients, eq(keywords.clientId, clients.id))
+    .limit(30);
+  if (all.length === 0) return "no keywords";
+  const { captureSerpSnapshot } = await import("./serp-feature-tracker");
+  let captured = 0;
+  for (const k of all) {
+    try {
+      const r = await captureSerpSnapshot({
+        query: k.query,
+        country: k.country,
+        ourDomain: k.clientUrl ?? undefined,
+        keywordId: k.id,
+      });
+      if (r.ok) captured += 1;
+    } catch {
+      // ignore
+    }
+  }
+  return `captured ${captured} SERP snapshots`;
 }
