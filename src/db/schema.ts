@@ -95,6 +95,12 @@ export const audits = sqliteTable("audits", {
   issuesCount: integer("issues_count").notNull().default(0),
   startedAt: integer("started_at", { mode: "timestamp" }),
   completedAt: integer("completed_at", { mode: "timestamp" }),
+  /** "crawler" (existing site-wide audit) | "ai_full" (AI single-page audit). */
+  kind: text("kind").notNull().default("crawler"),
+  /** For ai_full: which URL was analyzed. */
+  targetUrl: text("target_url"),
+  /** AI-written executive summary of the audit. */
+  summary: text("summary"),
   ...timestamps,
 });
 
@@ -114,6 +120,14 @@ export const auditIssues = sqliteTable("audit_issues", {
   })
     .notNull()
     .default("new"),
+  /** Markdown fix steps written by the AI for AI-generated audits. */
+  fixSteps: text("fix_steps"),
+  /** Top-level grouping (technical / on-page / content / E-E-A-T / etc). */
+  category: text("category"),
+  /** Whether this issue came from the AI audit runner vs the crawler. */
+  aiGenerated: integer("ai_generated", { mode: "boolean" }).notNull().default(false),
+  /** User-added sticky notes. */
+  notes: text("notes"),
   ...timestamps,
 });
 
@@ -1025,7 +1039,9 @@ export const botLogUploads = sqliteTable("bot_log_uploads", {
 export type Client = typeof clients.$inferSelect;
 export type NewClient = typeof clients.$inferInsert;
 export type Audit = typeof audits.$inferSelect;
+export type NewAudit = typeof audits.$inferInsert;
 export type AuditIssue = typeof auditIssues.$inferSelect;
+export type NewAuditIssue = typeof auditIssues.$inferInsert;
 export type Task = typeof tasks.$inferSelect;
 export type Keyword = typeof keywords.$inferSelect;
 export type KeywordRanking = typeof keywordRankings.$inferSelect;

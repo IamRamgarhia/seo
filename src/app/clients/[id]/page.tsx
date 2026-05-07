@@ -279,6 +279,16 @@ export default async function ClientDetailPage({
                 </div>
               </details>
               <Link
+                href={`/clients/${client.id}/ai-audit`}
+                className={buttonVariants({
+                  variant: "outline",
+                  className: "border-violet-500/30 bg-violet-500/10",
+                })}
+              >
+                <Bot className="size-3.5" />
+                AI audit
+              </Link>
+              <Link
                 href={`/agent/c/${client.id}`}
                 className={buttonVariants({
                   variant: "outline",
