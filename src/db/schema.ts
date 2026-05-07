@@ -1170,3 +1170,121 @@ export const aiCalls = sqliteTable("ai_calls", {
 });
 export type AiCall = typeof aiCalls.$inferSelect;
 export type NewAiCall = typeof aiCalls.$inferInsert;
+
+// =============== SERP feature snapshots ===============
+
+export const serpFeatureSnapshots = sqliteTable("serp_feature_snapshots", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  keywordId: integer("keyword_id"),
+  query: text("query").notNull(),
+  country: text("country").notNull().default("US"),
+  ourDomain: text("our_domain"),
+  ourPosition: integer("our_position"),
+  ourUrl: text("our_url"),
+  hasAio: integer("has_aio", { mode: "boolean" }).notNull().default(false),
+  aioSources: text("aio_sources", { mode: "json" }).$type<string[]>(),
+  aioIncludesUs: integer("aio_includes_us", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  hasFeaturedSnippet: integer("has_featured_snippet", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  featuredUrl: text("featured_url"),
+  featuredOwnedByUs: integer("featured_owned_by_us", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  paaQuestions: text("paa_questions", { mode: "json" }).$type<string[]>(),
+  topResults: text("top_results", { mode: "json" }).$type<
+    { position: number; title: string; url: string; domain: string }[]
+  >(),
+  capturedAt: integer("captured_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+export type SerpFeatureSnapshot = typeof serpFeatureSnapshots.$inferSelect;
+export type NewSerpFeatureSnapshot = typeof serpFeatureSnapshots.$inferInsert;
+
+// =============== Robots.txt history ===============
+
+export const robotsSnapshots = sqliteTable("robots_snapshots", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clientId: integer("client_id"),
+  hostname: text("hostname").notNull(),
+  content: text("content").notNull(),
+  contentHash: text("content_hash").notNull(),
+  status: integer("status"),
+  fetchedAt: integer("fetched_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+export type RobotsSnapshot = typeof robotsSnapshots.$inferSelect;
+export type NewRobotsSnapshot = typeof robotsSnapshots.$inferInsert;
+
+// =============== Uptime monitor ===============
+
+export const uptimeTargets = sqliteTable("uptime_targets", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clientId: integer("client_id"),
+  url: text("url").notNull(),
+  label: text("label"),
+  enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+  expectedStatus: integer("expected_status").notNull().default(200),
+  expectedText: text("expected_text"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+export type UptimeTarget = typeof uptimeTargets.$inferSelect;
+export type NewUptimeTarget = typeof uptimeTargets.$inferInsert;
+
+export const uptimePings = sqliteTable("uptime_pings", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  targetId: integer("target_id")
+    .notNull()
+    .references(() => uptimeTargets.id, { onDelete: "cascade" }),
+  status: integer("status"),
+  latencyMs: integer("latency_ms"),
+  ok: integer("ok", { mode: "boolean" }).notNull().default(false),
+  error: text("error"),
+  checkedAt: integer("checked_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+export type UptimePing = typeof uptimePings.$inferSelect;
+export type NewUptimePing = typeof uptimePings.$inferInsert;
+
+// =============== Redirect manager + 404 log ===============
+
+export const redirectRules = sqliteTable("redirect_rules", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clientId: integer("client_id"),
+  sourcePath: text("source_path").notNull(),
+  targetUrl: text("target_url").notNull(),
+  statusCode: integer("status_code").notNull().default(301),
+  note: text("note"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+export type RedirectRule = typeof redirectRules.$inferSelect;
+export type NewRedirectRule = typeof redirectRules.$inferInsert;
+
+export const notFoundLog = sqliteTable("not_found_log", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clientId: integer("client_id"),
+  sourcePath: text("source_path").notNull(),
+  hits: integer("hits").notNull().default(1),
+  firstSeen: integer("first_seen", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  lastSeen: integer("last_seen", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  resolved: integer("resolved", { mode: "boolean" }).notNull().default(false),
+  resolvedToUrl: text("resolved_to_url"),
+});
+export type NotFoundLog = typeof notFoundLog.$inferSelect;
+export type NewNotFoundLog = typeof notFoundLog.$inferInsert;

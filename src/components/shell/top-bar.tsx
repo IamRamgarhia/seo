@@ -3,6 +3,7 @@ import { NotificationsBell } from "./notifications-bell";
 import { ModeToggle } from "./mode-toggle";
 import { AddClientButton } from "./add-client-button";
 import { MobileNav } from "./mobile-nav";
+import { AiUsagePill } from "./ai-usage-pill";
 import { getUiMode } from "@/app/settings/ui-actions";
 
 export async function TopBar({
@@ -16,6 +17,7 @@ export async function TopBar({
       <MobileNav unreadByHref={unreadByHref} />
       <SearchPalette />
       <div className="ml-auto flex items-center gap-2">
+        <AiUsagePill />
         <AddClientButton />
         <ModeToggle mode={mode} />
         <NotificationsBell />

@@ -21,6 +21,7 @@ import {
   Lock,
   Map,
   Network,
+  Newspaper,
   RefreshCw,
   ScanText,
   Send,
@@ -86,6 +87,102 @@ const tools = [
     description:
       "Paste prospect URL + your generic template. AI mines their site for recent posts and topical signals, rewrites your opener with a specific reference. 2% → 15% reply rates.",
     accent: "rose",
+  },
+  {
+    href: "/tools/serp-features",
+    icon: Sparkles,
+    title: "SERP feature tracker (AIO + FS + PAA)",
+    description:
+      "Capture SERP snapshots over time — AI Overview citations, featured snippets, PAA questions. Surfaces snippet-takeover opportunities.",
+    accent: "rose",
+  },
+  {
+    href: "/tools/branded-split",
+    icon: GitMerge,
+    title: "Branded vs non-branded GSC split",
+    description:
+      "28-day clicks split with delta vs prior 28 days, separately for branded and non-branded queries. Different drops, different fixes.",
+    accent: "amber",
+  },
+  {
+    href: "/tools/robots-history",
+    icon: Activity,
+    title: "robots.txt history + diff",
+    description:
+      "Snapshot any host's robots.txt over time. Catches accidental Disallow: / disasters before they hurt indexing.",
+    accent: "amber",
+  },
+  {
+    href: "/tools/uptime",
+    icon: Activity,
+    title: "Uptime + TTFB monitor",
+    description:
+      "Add URLs to ping. Status code, latency, expected-text match. Self-hosted alternative to UptimeRobot.",
+    accent: "emerald",
+  },
+  {
+    href: "/tools/migration-parity",
+    icon: GitMerge,
+    title: "Migration URL-parity auditor",
+    description:
+      "Pre/post-launch URL parity check. Surfaces 404s, drifted redirects, off-host hops. Companion to the migration map generator.",
+    accent: "amber",
+  },
+  {
+    href: "/tools/hreflang-gen",
+    icon: Globe,
+    title: "Hreflang generator",
+    description:
+      "Paste language-region URL pairs, emit HTML / Link-header / sitemap blocks with x-default validation.",
+    accent: "cyan",
+  },
+  {
+    href: "/tools/wayback",
+    icon: Activity,
+    title: "Wayback Machine timeline",
+    description:
+      "How did a URL look 2 years ago? Internet Archive CDX, free, no key.",
+    accent: "violet",
+  },
+  {
+    href: "/tools/summarizer",
+    icon: FileText,
+    title: "AI content summarizer",
+    description:
+      "Long content → TL;DR + 5-7 takeaways + meta description + tweetable quote. Yoast Premium AI Summarize equivalent.",
+    accent: "cyan",
+  },
+  {
+    href: "/tools/bulk-alt",
+    icon: ImageIcon,
+    title: "Bulk image alt-text generator",
+    description:
+      "Crawl a URL, AI writes SEO alt text for every image based on nearby context. RankMath bulk image SEO equivalent.",
+    accent: "emerald",
+  },
+  {
+    href: "/tools/news-headline",
+    icon: Newspaper,
+    title: "News SEO — headline audit",
+    description:
+      "Score journalistic headlines for Top Stories fit, AP-style hook, length. AI suggests 3-5 alternates.",
+    accent: "rose",
+  },
+  {
+    href: "/tools/auto-link",
+    icon: Link2,
+    title: "Auto-link suggester (RankMath-style)",
+    description:
+      "Paste content + your internal page list. AI proposes contextual internal links — exact anchor + target — to add.",
+    accent: "violet",
+  },
+  {
+    href: "/tools/redirects-manager",
+    icon: CornerDownRight,
+    title: "Redirect manager + 404 monitor",
+    description:
+      "CRUD UI for 301/302/307/308/410 rules. 404 log with one-click 'turn this into a redirect'. POST to /api/v1/track-404 to log automatically.",
+    accent: "amber",
   },
   {
     href: "/tools/log-analyzer",
