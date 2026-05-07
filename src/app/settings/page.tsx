@@ -8,6 +8,7 @@ import {
   Bell,
   Brain,
   CheckCircle2,
+  Globe,
   Database,
   Key,
   Mail,
@@ -34,6 +35,8 @@ import { BrandForm } from "./brand-form";
 import { ApiKeysSection } from "./api-keys-section";
 import { ActiveProviderCard } from "./active-provider-card";
 import { CreditSaverForm } from "./credit-saver-form";
+import { BrowserForm } from "./browser-form";
+import { loadBrowserSettings } from "./browser-actions";
 
 export default async function SettingsPage() {
   const [{ value: clientCount }] = await db
@@ -73,6 +76,7 @@ export default async function SettingsPage() {
   const smtpFromName = await getSetting<string>("smtp.from_name");
   const smtpSecure = await getSetting<string>("smtp.secure");
   const smtpHasPassword = Boolean(await getSetting<string>("smtp.password"));
+  const browserSettings = await loadBrowserSettings();
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -285,6 +289,25 @@ export default async function SettingsPage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Browser pool */}
+      <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
+        <div className="pointer-events-none absolute -right-12 -top-12 size-40 rounded-full bg-cyan-500/15 blur-3xl" />
+        <header className="relative border-b border-white/5 px-5 py-4">
+          <h2 className="flex items-center gap-2 text-base font-semibold">
+            <Globe className="size-4 text-cyan-300" />
+            Headless browser pool
+          </h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Concurrency cap, stealth fingerprint, and optional outbound
+            proxies for SERP scraping, rank checks, GBP scraping, render +
+            screenshot, and local CWV measurement.
+          </p>
+        </header>
+        <div className="relative p-5">
+          <BrowserForm initial={browserSettings} />
         </div>
       </section>
 

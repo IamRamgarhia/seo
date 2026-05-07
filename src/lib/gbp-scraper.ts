@@ -1,42 +1,10 @@
-import { chromium, type Browser, type BrowserContext } from "playwright";
+import { withBrowserContext } from "./browser-pool";
 
 /**
  * Public Google Business Profile scraper. Pulls rating, review count, hours,
  * categories, address, top recent reviews from the Maps page. Best-effort —
  * Google's GBP HTML is fragile, so missing fields are normal.
  */
-
-const USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
-
-let cachedBrowser: Browser | null = null;
-let browserPromise: Promise<Browser> | null = null;
-
-async function getBrowser(): Promise<Browser> {
-  if (cachedBrowser && cachedBrowser.isConnected()) return cachedBrowser;
-  if (!browserPromise) {
-    browserPromise = chromium.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-blink-features=AutomationControlled",
-        "--disable-dev-shm-usage",
-      ],
-    });
-  }
-  cachedBrowser = await browserPromise;
-  return cachedBrowser;
-}
-
-async function newContext(browser: Browser): Promise<BrowserContext> {
-  return browser.newContext({
-    userAgent: USER_AGENT,
-    viewport: { width: 1280, height: 1800 },
-    locale: "en-US",
-    timezoneId: "UTC",
-    extraHTTPHeaders: { "accept-language": "en-US,en;q=0.9" },
-  });
-}
 
 export type GbpReview = {
   author: string;
@@ -83,11 +51,11 @@ export async function scrapeGbp(rawUrl: string): Promise<GbpReport> {
   }
 
   const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
-  const browser = await getBrowser();
-  const context = await newContext(browser);
-  const page = await context.newPage();
 
-  try {
+  return withBrowserContext(async (context) => {
+    const page = await context.newPage();
+
+    try {
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.waitForTimeout(1500);
 
@@ -210,13 +178,13 @@ export async function scrapeGbp(rawUrl: string): Promise<GbpReport> {
       })
       .catch(() => [] as GbpReview[]);
 
-    out.ok = true;
-    return out;
-  } catch (err) {
-    out.error = (err as Error).message;
-    return out;
-  } finally {
-    await page.close().catch(() => {});
-    await context.close().catch(() => {});
-  }
+      out.ok = true;
+      return out;
+    } catch (err) {
+      out.error = (err as Error).message;
+      return out;
+    } finally {
+      await page.close().catch(() => {});
+    }
+  });
 }

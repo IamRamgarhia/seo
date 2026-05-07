@@ -1,4 +1,4 @@
-import { chromium, type Browser, type BrowserContext } from "playwright";
+import { withBrowserContext } from "./browser-pool";
 
 /**
  * Local rank tracker — runs a rank check with city-level location intent
@@ -8,38 +8,6 @@ import { chromium, type Browser, type BrowserContext } from "playwright";
  * For true precise city-level (uule encoding), upgrade later — this version
  * gets you 90% of the way for "where do we rank in Chicago vs LA" workflows.
  */
-
-const USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
-
-let cachedBrowser: Browser | null = null;
-let browserPromise: Promise<Browser> | null = null;
-
-async function getBrowser(): Promise<Browser> {
-  if (cachedBrowser && cachedBrowser.isConnected()) return cachedBrowser;
-  if (!browserPromise) {
-    browserPromise = chromium.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-blink-features=AutomationControlled",
-        "--disable-dev-shm-usage",
-      ],
-    });
-  }
-  cachedBrowser = await browserPromise;
-  return cachedBrowser;
-}
-
-async function newContext(browser: Browser): Promise<BrowserContext> {
-  return browser.newContext({
-    userAgent: USER_AGENT,
-    viewport: { width: 1280, height: 1600 },
-    locale: "en-US",
-    timezoneId: "UTC",
-    extraHTTPHeaders: { "accept-language": "en-US,en;q=0.9" },
-  });
-}
 
 export type LocalRankResult = {
   query: string;
@@ -92,11 +60,10 @@ export async function checkLocalRank(opts: {
     mapPackPresent: false,
   };
 
-  const browser = await getBrowser();
-  const context = await newContext(browser);
-  const page = await context.newPage();
+  return withBrowserContext(async (context) => {
+    const page = await context.newPage();
 
-  try {
+    try {
     const url = `https://www.google.com/search?q=${encodeURIComponent(localQuery)}&hl=en&gl=${country}&pws=0&num=50`;
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.waitForTimeout(700);
@@ -148,12 +115,12 @@ export async function checkLocalRank(opts: {
       }
     }
 
-    return out;
-  } catch (err) {
-    out.error = (err as Error).message;
-    return out;
-  } finally {
-    await page.close().catch(() => {});
-    await context.close().catch(() => {});
-  }
+      return out;
+    } catch (err) {
+      out.error = (err as Error).message;
+      return out;
+    } finally {
+      await page.close().catch(() => {});
+    }
+  }, { viewport: { width: 1280, height: 1600 } });
 }

@@ -1,43 +1,13 @@
-import { chromium, type Browser, type BrowserContext } from "playwright";
+import { withBrowserContext } from "./browser-pool";
 
 /**
  * Scrapes a Google SERP for everything an SEO actually wants to see:
  * AI Overview, People Also Ask, related searches, top organic results,
  * featured snippet, local pack. Best-effort with multiple selector
  * fallbacks because Google's HTML changes constantly.
+ *
+ * Uses the central browser pool for queueing, stealth, and proxy rotation.
  */
-
-const USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
-
-let cachedBrowser: Browser | null = null;
-let browserPromise: Promise<Browser> | null = null;
-
-async function getBrowser(): Promise<Browser> {
-  if (cachedBrowser && cachedBrowser.isConnected()) return cachedBrowser;
-  if (!browserPromise) {
-    browserPromise = chromium.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-blink-features=AutomationControlled",
-        "--disable-dev-shm-usage",
-      ],
-    });
-  }
-  cachedBrowser = await browserPromise;
-  return cachedBrowser;
-}
-
-async function newContext(browser: Browser): Promise<BrowserContext> {
-  return browser.newContext({
-    userAgent: USER_AGENT,
-    viewport: { width: 1280, height: 1800 },
-    locale: "en-US",
-    timezoneId: "UTC",
-    extraHTTPHeaders: { "accept-language": "en-US,en;q=0.9" },
-  });
-}
 
 export type SerpScanInput = {
   query: string;
@@ -104,13 +74,11 @@ export async function scanSerp(opts: SerpScanInput): Promise<SerpScanOutput> {
   const country = (opts.country ?? "US").toUpperCase();
   const clientDomain = normalizeDomain(opts.clientDomain);
 
-  const browser = await getBrowser();
-  const context = await newContext(browser);
-  const page = await context.newPage();
+  return withBrowserContext(async (context) => {
+    const page = await context.newPage();
+    const out: SerpScanOutput = empty();
 
-  const out: SerpScanOutput = empty();
-
-  try {
+    try {
     const url = `https://www.google.com/search?q=${encodeURIComponent(
       opts.query,
     )}&hl=en&gl=${country}&pws=0&num=20`;
@@ -330,13 +298,13 @@ export async function scanSerp(opts: SerpScanInput): Promise<SerpScanOutput> {
       })
       .catch(() => false);
 
-    out.ok = true;
-    return out;
-  } catch (err) {
-    out.error = (err as Error).message;
-    return out;
-  } finally {
-    await page.close().catch(() => {});
-    await context.close().catch(() => {});
-  }
+      out.ok = true;
+      return out;
+    } catch (err) {
+      out.error = (err as Error).message;
+      return out;
+    } finally {
+      await page.close().catch(() => {});
+    }
+  });
 }

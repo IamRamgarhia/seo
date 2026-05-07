@@ -64,7 +64,13 @@ export type SettingKey =
   | "outreach.sender_name"
   | "indexnow.key"
   | "bing.api_key"
-  | "youtube.api_key";
+  | "youtube.api_key"
+  // Browser pool — controls headless chromium concurrency + outbound proxies.
+  // proxies is a newline-separated list of "http://user:pass@host:port" or
+  // "host:port"; rotated round-robin per launched context. Empty = direct.
+  | "browser.max_concurrency"
+  | "browser.proxies"
+  | "browser.stealth_enabled";
 
 export async function getSetting<T = unknown>(
   key: SettingKey,

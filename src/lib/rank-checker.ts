@@ -1,4 +1,5 @@
-import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
+import { type Page } from "playwright";
+import { withBrowserContext } from "./browser-pool";
 
 export type RankCheckResult = {
   query: string;
@@ -11,9 +12,6 @@ export type RankCheckResult = {
   screenshotBuffer?: Buffer;
   error?: string;
 };
-
-const USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 
 function normalizeDomain(input: string): string {
   return input
@@ -31,37 +29,6 @@ function urlMatches(href: string, domain: string): boolean {
   } catch {
     return false;
   }
-}
-
-let cachedBrowser: Browser | null = null;
-let browserPromise: Promise<Browser> | null = null;
-
-async function getBrowser(): Promise<Browser> {
-  if (cachedBrowser && cachedBrowser.isConnected()) return cachedBrowser;
-  if (!browserPromise) {
-    browserPromise = chromium.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-blink-features=AutomationControlled",
-        "--disable-dev-shm-usage",
-      ],
-    });
-  }
-  cachedBrowser = await browserPromise;
-  return cachedBrowser;
-}
-
-async function newContext(browser: Browser): Promise<BrowserContext> {
-  return browser.newContext({
-    userAgent: USER_AGENT,
-    viewport: { width: 1280, height: 900 },
-    locale: "en-US",
-    timezoneId: "UTC",
-    extraHTTPHeaders: {
-      "accept-language": "en-US,en;q=0.9",
-    },
-  });
 }
 
 async function captureScreenshot(page: Page): Promise<Buffer | undefined> {
@@ -84,13 +51,13 @@ async function checkOnGoogle(
   withScreenshot = false,
   locale?: { country?: string; language?: string; city?: string },
 ): Promise<RankCheckResult> {
-  const browser = await getBrowser();
-  const context = await newContext(browser);
-  const page = await context.newPage();
-  const checkedAt = new Date();
-  let resultsScanned = 0;
+  return withBrowserContext(
+    async (context) => {
+      const page = await context.newPage();
+      const checkedAt = new Date();
+      let resultsScanned = 0;
 
-  try {
+      try {
     const country = (locale?.country ?? "US").toUpperCase();
     const lang = locale?.language ?? "en";
     // For city-level checks, prepend the city to the query — that's what
@@ -180,32 +147,34 @@ async function checkOnGoogle(
     };
   } catch (err) {
     return {
-      query,
-      domain,
-      engine: "google",
-      position: null,
-      url: null,
-      checkedAt,
-      resultsScanned,
-      error: (err as Error).message,
-    };
-  } finally {
-    await page.close().catch(() => {});
-    await context.close().catch(() => {});
-  }
+          query,
+          domain,
+          engine: "google",
+          position: null,
+          url: null,
+          checkedAt,
+          resultsScanned,
+          error: (err as Error).message,
+        };
+      } finally {
+        await page.close().catch(() => {});
+      }
+    },
+    { viewport: { width: 1280, height: 900 } },
+  );
 }
 
 async function checkOnDuckDuckGo(
   query: string,
   domain: string,
 ): Promise<RankCheckResult> {
-  const browser = await getBrowser();
-  const context = await newContext(browser);
-  const page = await context.newPage();
-  const checkedAt = new Date();
-  let resultsScanned = 0;
+  return withBrowserContext(
+    async (context) => {
+      const page = await context.newPage();
+      const checkedAt = new Date();
+      let resultsScanned = 0;
 
-  try {
+      try {
     const url = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.waitForTimeout(500);
@@ -249,19 +218,21 @@ async function checkOnDuckDuckGo(
     };
   } catch (err) {
     return {
-      query,
-      domain,
-      engine: "duckduckgo",
-      position: null,
-      url: null,
-      checkedAt,
-      resultsScanned,
-      error: (err as Error).message,
-    };
-  } finally {
-    await page.close().catch(() => {});
-    await context.close().catch(() => {});
-  }
+          query,
+          domain,
+          engine: "duckduckgo",
+          position: null,
+          url: null,
+          checkedAt,
+          resultsScanned,
+          error: (err as Error).message,
+        };
+      } finally {
+        await page.close().catch(() => {});
+      }
+    },
+    { viewport: { width: 1280, height: 900 } },
+  );
 }
 
 /**
@@ -313,9 +284,6 @@ export async function checkRank(
 
 /** Close the cached browser. Call this when the process is shutting down. */
 export async function shutdownBrowser(): Promise<void> {
-  if (cachedBrowser) {
-    await cachedBrowser.close().catch(() => {});
-    cachedBrowser = null;
-    browserPromise = null;
-  }
+  const { closeBrowser } = await import("./browser-pool");
+  await closeBrowser();
 }

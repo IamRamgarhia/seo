@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import {
   Activity,
+  Camera,
   Code2,
   Compass,
   Eye,
@@ -38,6 +39,22 @@ const tools = [
     description:
       "One URL → audit + robots + hreflang + security + Core Web Vitals + image audit + redirect chain in parallel. Save snapshots to compare before / after.",
     accent: "violet",
+  },
+  {
+    href: "/tools/render",
+    icon: Camera,
+    title: "JS render + screenshot",
+    description:
+      "Render any URL in headless Chrome — post-hydration HTML, full-page screenshot, redirect chain, response headers, console + network errors. Critical for SPAs.",
+    accent: "cyan",
+  },
+  {
+    href: "/tools/local-cwv",
+    icon: Gauge,
+    title: "Local Core Web Vitals (no PSI key)",
+    description:
+      "Measures LCP / FCP / CLS / TBT directly from PerformanceObserver. Lighthouse-equivalent 0-100 score, resource breakdown, top fixes by impact. No PageSpeed quota.",
+    accent: "amber",
   },
   {
     href: "/tools/eeat-audit",
