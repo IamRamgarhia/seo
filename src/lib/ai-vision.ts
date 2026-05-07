@@ -27,10 +27,23 @@ export type VisionCallOpts = {
   timeoutMs?: number;
   feature?: string;
   clientId?: number | null;
+  providerOverride?: import("./api-keys").ActiveProvider;
+  modelOverride?: string;
 };
 
 export async function callAIVision(opts: VisionCallOpts): Promise<string | null> {
-  const provider = await getActiveProvider();
+  // Per-call provider override (only honored if user has a key for it)
+  let provider: import("./api-keys").ActiveProvider | null = null;
+  if (opts.providerOverride) {
+    if (opts.providerOverride === "ollama") {
+      const url = await getOllamaUrl();
+      if (url) provider = "ollama";
+    } else {
+      const k = await getApiKey(opts.providerOverride);
+      if (k) provider = opts.providerOverride;
+    }
+  }
+  if (!provider) provider = await getActiveProvider();
   if (!provider) return null;
 
   const cap = await checkMonthlyCap();
@@ -60,7 +73,7 @@ export async function callAIVision(opts: VisionCallOpts): Promise<string | null>
     if (provider === "gemini") {
       const k = await getApiKey("gemini");
       if (!k) return null;
-      model = "gemini-1.5-flash-latest";
+      model = opts.modelOverride || "gemini-1.5-flash-latest";
       text = await callGemini({
         apiKey: k,
         system: opts.system,
@@ -72,7 +85,7 @@ export async function callAIVision(opts: VisionCallOpts): Promise<string | null>
     } else if (provider === "anthropic") {
       const k = await getApiKey("anthropic");
       if (!k) return null;
-      model = "claude-haiku-4-5-20251001";
+      model = opts.modelOverride || "claude-haiku-4-5-20251001";
       text = await callAnthropic({
         apiKey: k,
         system: opts.system,
@@ -84,7 +97,7 @@ export async function callAIVision(opts: VisionCallOpts): Promise<string | null>
     } else if (provider === "openai") {
       const k = await getApiKey("openai");
       if (!k) return null;
-      model = "gpt-4o-mini";
+      model = opts.modelOverride || "gpt-4o-mini";
       text = await callOpenAI({
         apiKey: k,
         system: opts.system,
@@ -97,7 +110,7 @@ export async function callAIVision(opts: VisionCallOpts): Promise<string | null>
       const k = await getApiKey("openrouter");
       if (!k) return null;
       // Use a vision-capable free model
-      model = "meta-llama/llama-3.2-11b-vision-instruct:free";
+      model = opts.modelOverride || "meta-llama/llama-3.2-11b-vision-instruct:free";
       text = await callOpenAI({
         endpoint: "https://openrouter.ai/api/v1/chat/completions",
         extraHeaders: { "x-title": "SEO Tool" },

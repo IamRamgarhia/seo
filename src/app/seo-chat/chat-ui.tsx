@@ -16,6 +16,10 @@ import {
 import { seoChat, type SeoChatMessage, type AnswerLength } from "./actions";
 import { SEO_SKILLS, type SeoSkillId } from "@/lib/seo-skills";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
+import {
+  AiModelPicker,
+  type ModelSelection,
+} from "@/components/ai-model-picker";
 
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 
@@ -48,6 +52,10 @@ export function SeoChatUi() {
   const [skill, setSkill] = useState<SeoSkillId>("general");
   const [research, setResearch] = useState(false);
   const [length, setLength] = useState<AnswerLength>("short");
+  const [modelSel, setModelSel] = useState<ModelSelection>({
+    provider: undefined,
+    model: undefined,
+  });
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -84,6 +92,7 @@ export function SeoChatUi() {
         skill,
         research,
         length,
+        { provider: modelSel.provider, model: modelSel.model },
       );
       if (r.ok) {
         setMessages([...next, { role: "assistant", content: r.reply }]);
@@ -360,6 +369,11 @@ export function SeoChatUi() {
             <Zap className="size-3" />
             ~{estimateTokens(input, length, research)} tok
           </span>
+          <AiModelPicker
+            selection={modelSel}
+            onChange={setModelSel}
+            size="sm"
+          />
           <span className="italic text-muted-foreground/70 truncate">
             AI can make mistakes — verify before applying
           </span>

@@ -14,6 +14,10 @@ import { Label } from "@/components/ui/label";
 import { askTheTool } from "./actions";
 import { AiFeedback } from "@/components/ai-feedback";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
+import {
+  AiModelPicker,
+  type ModelSelection,
+} from "@/components/ai-model-picker";
 
 type Turn =
   | { kind: "user"; text: string }
@@ -39,6 +43,10 @@ export function AskClient({
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [pending, startTransition] = useTransition();
+  const [modelSel, setModelSel] = useState<ModelSelection>({
+    provider: undefined,
+    model: undefined,
+  });
 
   function ask(q: string = question) {
     if (!q.trim()) return;
@@ -50,6 +58,7 @@ export function AskClient({
       const r = await askTheTool({
         clientId: clientId ? Number(clientId) : null,
         question: q,
+        modelChoice: { provider: modelSel.provider, model: modelSel.model },
       });
       if (r.ok) {
         setTurns((t) => [...t, { kind: "tool", text: r.answer }]);
@@ -86,6 +95,13 @@ export function AskClient({
               Pulling real audit + keyword data
             </span>
           )}
+          <div className="ml-auto">
+            <AiModelPicker
+              selection={modelSel}
+              onChange={setModelSel}
+              size="sm"
+            />
+          </div>
         </div>
       </section>
 

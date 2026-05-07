@@ -31,6 +31,15 @@ export type AiCallOptions = {
   feature?: AiFeatureName;
   /** Scopes learned rules to this client when set. */
   clientId?: number | null;
+  /**
+   * Per-call provider override. When set, the call uses this provider instead
+   * of the workspace's active provider. The user must still have a key
+   * configured for the override; otherwise we fall back to the active provider
+   * (or null if nothing's configured at all).
+   */
+  providerOverride?: import("./api-keys").ActiveProvider;
+  /** Per-call model override paired with providerOverride (or active). */
+  modelOverride?: string;
 };
 
 /**
@@ -47,7 +56,19 @@ export type AiCallOptions = {
  *   - features that need length (blog writer) opt out via ignoreCreditSaver
  */
 export async function callAI(opts: AiCallOptions): Promise<string | null> {
-  const active = await getActiveProvider();
+  // Per-call override takes precedence — but only if the user has a key
+  // for it. Otherwise fall back to the workspace active provider.
+  let active: import("./api-keys").ActiveProvider | null = null;
+  if (opts.providerOverride) {
+    if (opts.providerOverride === "ollama") {
+      const url = await getOllamaUrl();
+      if (url) active = "ollama";
+    } else {
+      const k = await getApiKey(opts.providerOverride);
+      if (k) active = opts.providerOverride;
+    }
+  }
+  if (!active) active = await getActiveProvider();
   if (!active) return null;
 
   // Enforce monthly cap if set
@@ -112,16 +133,28 @@ export async function callAI(opts: AiCallOptions): Promise<string | null> {
   let text: string | null = null;
   let errorMsg: string | undefined;
 
+  // Per-provider default model when no override is given.
+  const defaultModel: Record<string, string> = {
+    gemini: "gemini-1.5-flash-latest",
+    groq: "llama-3.3-70b-versatile",
+    anthropic: "claude-haiku-4-5-20251001",
+    openai: "gpt-4o-mini",
+    openrouter: "meta-llama/llama-3.3-70b-instruct:free",
+    perplexity: "sonar",
+    ollama: "llama3",
+  };
+  const pickedModel = opts.modelOverride?.trim() || defaultModel[active];
+
   try {
     if (active === "gemini") {
       const k = await getApiKey("gemini");
       if (!k) return null;
-      model = "gemini-1.5-flash-latest";
-      text = await callGemini({ apiKey: k, ...packed, max, temperature, timeoutMs });
+      model = pickedModel;
+      text = await callGemini({ apiKey: k, model, ...packed, max, temperature, timeoutMs });
     } else if (active === "groq") {
       const k = await getApiKey("groq");
       if (!k) return null;
-      model = "llama-3.3-70b-versatile";
+      model = pickedModel;
       text = await callOpenAICompat({
         endpoint: "https://api.groq.com/openai/v1/chat/completions",
         apiKey: k,
@@ -134,12 +167,12 @@ export async function callAI(opts: AiCallOptions): Promise<string | null> {
     } else if (active === "anthropic") {
       const k = await getApiKey("anthropic");
       if (!k) return null;
-      model = "claude-haiku-4-5-20251001";
-      text = await callAnthropic({ apiKey: k, ...packed, max, temperature, timeoutMs });
+      model = pickedModel;
+      text = await callAnthropic({ apiKey: k, model, ...packed, max, temperature, timeoutMs });
     } else if (active === "openai") {
       const k = await getApiKey("openai");
       if (!k) return null;
-      model = "gpt-4o-mini";
+      model = pickedModel;
       text = await callOpenAICompat({
         endpoint: "https://api.openai.com/v1/chat/completions",
         apiKey: k,
@@ -152,7 +185,7 @@ export async function callAI(opts: AiCallOptions): Promise<string | null> {
     } else if (active === "openrouter") {
       const k = await getApiKey("openrouter");
       if (!k) return null;
-      model = "meta-llama/llama-3.3-70b-instruct:free";
+      model = pickedModel;
       text = await callOpenAICompat({
         endpoint: "https://openrouter.ai/api/v1/chat/completions",
         apiKey: k,
@@ -166,7 +199,7 @@ export async function callAI(opts: AiCallOptions): Promise<string | null> {
     } else if (active === "perplexity") {
       const k = await getApiKey("perplexity");
       if (!k) return null;
-      model = "sonar";
+      model = pickedModel;
       text = await callOpenAICompat({
         endpoint: "https://api.perplexity.ai/chat/completions",
         apiKey: k,
@@ -178,8 +211,8 @@ export async function callAI(opts: AiCallOptions): Promise<string | null> {
       });
     } else if (active === "ollama") {
       const url = await getOllamaUrl();
-      model = "llama3";
-      text = await callOllama({ url, ...packed, max, temperature, timeoutMs });
+      model = pickedModel;
+      text = await callOllama({ url, model, ...packed, max, temperature, timeoutMs });
     }
   } catch (err) {
     errorMsg = (err as Error).message;
@@ -207,10 +240,13 @@ type CallArgs = AiCallOptions & {
   max: number;
   temperature: number;
   timeoutMs: number;
+  /** Provider-specific model name. */
+  model?: string;
 };
 
 async function callGemini(args: CallArgs): Promise<string | null> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${encodeURIComponent(args.apiKey ?? "")}`;
+  const model = args.model || "gemini-1.5-flash-latest";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(args.apiKey ?? "")}`;
   const c = new AbortController();
   const t = setTimeout(() => c.abort(), args.timeoutMs);
   try {
@@ -275,7 +311,7 @@ async function callAnthropic(args: CallArgs): Promise<string | null> {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
+        model: args.model || "claude-haiku-4-5-20251001",
         max_tokens: args.max,
         temperature: args.temperature,
         system: systemPayload,
@@ -343,7 +379,7 @@ async function callOllama(args: CallArgs & { url: string }): Promise<string | nu
       signal: c.signal,
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        model: "llama3.2",
+        model: args.model || "llama3.2",
         stream: false,
         options: { temperature: args.temperature, num_predict: args.max },
         messages: [

@@ -89,6 +89,7 @@ export async function seoChat(
   skillId?: SeoSkillId,
   research?: boolean,
   length: AnswerLength = "short",
+  modelChoice?: { provider?: string; model?: string },
 ): Promise<SeoChatResearchResult> {
   if (history.length === 0 || history[history.length - 1].role !== "user") {
     return { ok: false, error: "No question to answer." };
@@ -201,6 +202,10 @@ export async function seoChat(
     temperature: length === "short" ? 0.2 : 0.4,
     timeoutMs: 60_000,
     feature: "general",
+    providerOverride: modelChoice?.provider as
+      | import("@/lib/api-keys").ActiveProvider
+      | undefined,
+    modelOverride: modelChoice?.model,
   });
   if (!reply) {
     return {

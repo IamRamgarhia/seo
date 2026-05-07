@@ -103,6 +103,7 @@ async function buildClientContext(clientId: number): Promise<string | null> {
 export async function askTheTool(input: {
   clientId?: number | null;
   question: string;
+  modelChoice?: { provider?: string; model?: string };
 }): Promise<AskResult> {
   const question = input.question.trim();
   if (!question) {
@@ -134,6 +135,10 @@ Be specific, action-oriented, and concise. Cite which data point you're reasonin
     temperature: 0.4,
     feature: "general",
     clientId: input.clientId ?? null,
+    providerOverride: input.modelChoice?.provider as
+      | import("@/lib/api-keys").ActiveProvider
+      | undefined,
+    modelOverride: input.modelChoice?.model,
   });
 
   if (!answer) {
