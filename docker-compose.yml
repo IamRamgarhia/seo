@@ -6,7 +6,9 @@ services:
     image: seo-tool:local
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      # Host port respects $SEO_HOST_PORT (set by install.sh/.ps1 when 3000
+      # is occupied). Container always serves on 3000.
+      - "${SEO_HOST_PORT:-3000}:3000"
     environment:
       # Persistent SQLite path inside the container — mapped to a volume
       SEO_DB_PATH: /data/data.db

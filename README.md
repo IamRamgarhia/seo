@@ -26,7 +26,14 @@ curl -fsSL https://raw.githubusercontent.com/IamRamgarhia/seo/main/install.sh | 
 iwr -useb https://raw.githubusercontent.com/IamRamgarhia/seo/main/install.ps1 | iex
 ```
 
-The installer clones into `~/seo` (override with `SEO_INSTALL_DIR=/path`), starts the container, and tells you when the app is up. Then open <http://localhost:3000>.
+The installer:
+- Clones into `~/seo` (override with `SEO_INSTALL_DIR=/path`)
+- **Auto-finds a free port** if `3000` is occupied (tries 3001-3010, 8080, 4000…)
+- Starts the container and polls `/api/v1/health` until the app is actually up (typically 30-60s)
+- **Auto-opens your browser** to the right URL
+- Drops a `SEO-Tool-Welcome.txt` on your Desktop with stop / start / update / troubleshoot commands
+
+To pin a specific port: `SEO_PORT=4000 curl -fsSL .../install.sh | bash`
 
 ---
 
@@ -37,10 +44,12 @@ Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) (macO
 ```bash
 git clone https://github.com/IamRamgarhia/seo.git
 cd seo
-docker compose up -d
+docker compose up -d                # uses port 3000
+# or pick a different port if 3000 is busy:
+SEO_HOST_PORT=4000 docker compose up -d
 ```
 
-Open <http://localhost:3000>. The image bundles Chromium + Playwright; no extra setup.
+Open <http://localhost:3000> (or whichever port you chose). The image bundles Chromium + Playwright; no extra setup.
 
 To stop: `docker compose down`. To wipe data: `docker compose down -v`.
 
