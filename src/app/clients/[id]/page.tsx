@@ -295,7 +295,7 @@ export default async function ClientDetailPage({
             <div className="flex flex-wrap items-center gap-2 pt-2">
               <form action={runAction}>
                 <SubmitButton
-                  icon={Play}
+                  icon={<Play className="size-3.5" />}
                   pendingChildren="Running audit…"
                   pendingToast="Starting audit"
                   pendingToastDescription="Crawling the site and running 30+ checks. Takes ~30-60 s."
@@ -429,7 +429,7 @@ export default async function ClientDetailPage({
               <form action={refreshMetadataAction}>
                 <SubmitButton
                   variant="outline"
-                  icon={RefreshCw}
+                  icon={<RefreshCw className="size-3.5" />}
                   pendingChildren="Refreshing…"
                   pendingToast="Refreshing site metadata"
                   pendingToastDescription="Re-fetching logo, NAP, tech stack…"

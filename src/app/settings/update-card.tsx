@@ -38,6 +38,7 @@ export function UpdateCard() {
   const [status, setStatus] = useState<Status>(null);
   const [checking, setChecking] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [restarting, setRestarting] = useState(false);
   const [response, setResponse] = useState<UpdateResponse | null>(null);
 
   const check = useCallback(async () => {
@@ -57,14 +58,58 @@ export function UpdateCard() {
     void check();
   }, [check]);
 
+  /**
+   * Auto-restart the server after a successful update that flagged
+   * restartRecommended (= package.json changed, new dependencies need
+   * loading). Polls /api/health-ping every 1.5s for up to 60s; once
+   * the server is back, hard-reloads the page so the user lands on
+   * the freshly-built bundle. No manual click needed.
+   */
+  const autoRestart = useCallback(async () => {
+    setRestarting(true);
+    const r = await safeFetch<{ ok: boolean; error?: string }>(
+      "/api/restart",
+      { method: "POST" },
+    );
+    if (!r.ok) {
+      setRestarting(false);
+      return;
+    }
+    const start = Date.now();
+    const poll = async () => {
+      try {
+        const ping = await fetch("/api/health-ping", { cache: "no-store" });
+        if (ping.ok) {
+          location.reload();
+          return;
+        }
+      } catch {
+        // expected during downtime
+      }
+      if (Date.now() - start < 60_000) {
+        setTimeout(poll, 1_500);
+      } else {
+        setRestarting(false);
+      }
+    };
+    setTimeout(poll, 3_000);
+  }, []);
+
   const update = useCallback(async () => {
     setUpdating(true);
     setResponse(null);
     const r = await safeFetch<UpdateResponse>("/api/update", { method: "POST" });
-    setResponse(r.ok ? r.data : { ok: false, error: r.error });
+    const data = r.ok ? r.data : { ok: false, error: r.error };
+    setResponse(data);
     setUpdating(false);
     void check();
-  }, [check]);
+    // Auto-chain: if the update succeeded AND new dependencies were
+    // installed, fire the restart immediately so the user doesn't have
+    // to babysit. Skip restart when nothing changed (hot-reload covers it).
+    if (data.ok && data.restartRecommended) {
+      void autoRestart();
+    }
+  }, [check, autoRestart]);
 
   return (
     <section
@@ -198,12 +243,22 @@ export function UpdateCard() {
                   </li>
                 ))}
               </ul>
-              {response.restartRecommended && (
-                <p className="rounded-md bg-amber-500/10 p-2 text-[11px] text-amber-300 ring-1 ring-inset ring-amber-500/30">
-                  ⚠ Restart the server to finish loading new dependencies.
-                  Stop the dev server and re-run the installer command from your
-                  Welcome.txt.
+              {response.restartRecommended && !restarting && (
+                <p className="flex items-start gap-2 rounded-md bg-amber-500/10 p-2 text-[11px] text-amber-300 ring-1 ring-inset ring-amber-500/30">
+                  <Loader2 className="size-3 shrink-0 animate-spin" />
+                  Restart needed for new dependencies — auto-restarting…
                 </p>
+              )}
+              {restarting && (
+                <div className="flex items-start gap-2 rounded-md bg-violet-500/10 p-2 text-[11px] text-violet-300 ring-1 ring-inset ring-violet-500/30">
+                  <Loader2 className="mt-0.5 size-3 shrink-0 animate-spin" />
+                  <div>
+                    <div className="font-medium">Restarting the server…</div>
+                    <div className="mt-0.5 text-violet-300/70">
+                      Page reloads automatically when it&apos;s back (8–15 s).
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           )}

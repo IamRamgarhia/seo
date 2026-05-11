@@ -14,7 +14,7 @@
 
 import { useEffect } from "react";
 import { useFormStatus } from "react-dom";
-import { Loader2, type LucideIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
@@ -26,8 +26,15 @@ type Props = {
   children: React.ReactNode;
   /** Label shown while the action is running. Default: same as children + " …" */
   pendingChildren?: React.ReactNode;
-  /** Optional icon shown when idle */
-  icon?: LucideIcon;
+  /**
+   * Optional icon shown when idle. Must be a JSX element (not a component
+   * constructor) — React Server Components can't serialize functions
+   * across the boundary. Use:
+   *   <SubmitButton icon={<Play className="size-3.5" />}>
+   * NOT:
+   *   <SubmitButton icon={Play}>  // ❌ crashes the page
+   */
+  icon?: React.ReactNode;
   /** Optional toast title fired the moment the action starts */
   pendingToast?: string;
   /** Toast description */
@@ -41,7 +48,7 @@ type Props = {
 export function SubmitButton({
   children,
   pendingChildren,
-  icon: Icon,
+  icon,
   pendingToast,
   pendingToastDescription,
   variant,
@@ -83,7 +90,7 @@ export function SubmitButton({
         </>
       ) : (
         <>
-          {Icon && <Icon className="size-3.5" />}
+          {icon}
           {children}
         </>
       )}
