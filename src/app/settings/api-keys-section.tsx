@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { saveApiKey, saveOllamaUrl } from "./key-actions";
 import { Button } from "@/components/ui/button";
+import { safeFetch } from "@/lib/safe-fetch";
 import {
   PROVIDER_CATALOG,
   type Provider,
@@ -143,24 +144,16 @@ function ProviderCard({
   const runTest = async () => {
     setTesting(true);
     setTestResult(null);
-    try {
-      const res = await fetch("/api/test-provider", {
+    const r = await safeFetch<{ ok: true; reply: string; elapsedMs: number }>(
+      "/api/test-provider",
+      {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ provider: providerId ?? "ollama" }),
-      });
-      const j = (await res.json()) as
-        | { ok: true; reply: string; elapsedMs: number }
-        | { ok: false; error: string };
-      setTestResult(j);
-    } catch (err) {
-      setTestResult({
-        ok: false,
-        error: (err as Error).message || "Network error",
-      });
-    } finally {
-      setTesting(false);
-    }
+      },
+    );
+    setTestResult(r.ok ? r.data : { ok: false, error: r.error });
+    setTesting(false);
   };
 
   return (

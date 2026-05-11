@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Trash2,
 } from "lucide-react";
+import { safeFetch } from "@/lib/safe-fetch";
 
 // Chrome's beforeinstallprompt event isn't in the TS lib yet.
 type BeforeInstallPromptEvent = Event & {
@@ -65,13 +66,10 @@ export function InstallActions() {
   }, []);
 
   async function refreshShortcut() {
-    try {
-      const res = await fetch("/api/desktop-shortcut");
-      const j = (await res.json()) as ShortcutState;
-      setShortcutState(j);
-    } catch {
-      setShortcutState({ ok: false, desktopExists: false, startMenuExists: false });
-    }
+    const r = await safeFetch<ShortcutState>("/api/desktop-shortcut");
+    setShortcutState(
+      r.ok ? r.data : { ok: false, desktopExists: false, startMenuExists: false },
+    );
   }
 
   async function installPwa() {
@@ -87,40 +85,34 @@ export function InstallActions() {
   async function createShortcut() {
     setShortcutBusy(true);
     setShortcutMsg(null);
-    try {
-      const res = await fetch("/api/desktop-shortcut", { method: "POST" });
-      const j = (await res.json()) as { ok: boolean; message?: string; error?: string };
-      setShortcutMsg(
-        j.ok
-          ? { ok: true, text: j.message ?? "Shortcuts created." }
-          : { ok: false, text: j.error ?? "Failed." },
-      );
-      await refreshShortcut();
-    } catch (err) {
-      setShortcutMsg({ ok: false, text: (err as Error).message });
-    } finally {
-      setShortcutBusy(false);
-    }
+    const r = await safeFetch<{ ok: true; message: string }>(
+      "/api/desktop-shortcut",
+      { method: "POST" },
+    );
+    setShortcutMsg(
+      r.ok
+        ? { ok: true, text: r.data.message ?? "Shortcuts created." }
+        : { ok: false, text: r.error },
+    );
+    await refreshShortcut();
+    setShortcutBusy(false);
   }
 
   async function removeShortcut() {
     if (!confirm("Remove the desktop & Start Menu shortcuts?")) return;
     setShortcutBusy(true);
     setShortcutMsg(null);
-    try {
-      const res = await fetch("/api/desktop-shortcut", { method: "DELETE" });
-      const j = (await res.json()) as { ok: boolean; message?: string; error?: string };
-      setShortcutMsg(
-        j.ok
-          ? { ok: true, text: j.message ?? "Shortcuts removed." }
-          : { ok: false, text: j.error ?? "Failed." },
-      );
-      await refreshShortcut();
-    } catch (err) {
-      setShortcutMsg({ ok: false, text: (err as Error).message });
-    } finally {
-      setShortcutBusy(false);
-    }
+    const r = await safeFetch<{ ok: true; message: string }>(
+      "/api/desktop-shortcut",
+      { method: "DELETE" },
+    );
+    setShortcutMsg(
+      r.ok
+        ? { ok: true, text: r.data.message ?? "Shortcuts removed." }
+        : { ok: false, text: r.error },
+    );
+    await refreshShortcut();
+    setShortcutBusy(false);
   }
 
   const isWindows =

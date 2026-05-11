@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import { safeFetch } from "@/lib/safe-fetch";
 
 export function RestoreForm() {
   const [pending, setPending] = useState(false);
@@ -33,23 +34,14 @@ export function RestoreForm() {
     }
     setPending(true);
     setResult(null);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/restore", {
-        method: "POST",
-        body: formData,
-      });
-      const j = await res.json();
-      setResult(j);
-    } catch (err) {
-      setResult({
-        ok: false,
-        error: (err as Error).message || "Network error",
-      });
-    } finally {
-      setPending(false);
-    }
+    const formData = new FormData();
+    formData.append("file", file);
+    const r = await safeFetch<{ ok: true; message: string; bytes: number }>(
+      "/api/restore",
+      { method: "POST", body: formData },
+    );
+    setResult(r.ok ? r.data : { ok: false, error: r.error });
+    setPending(false);
   }
 
   return (

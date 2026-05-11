@@ -11,6 +11,7 @@ import {
   XCircle,
   Circle,
 } from "lucide-react";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Status =
   | {
@@ -41,18 +42,15 @@ export function UpdateCard() {
 
   const check = useCallback(async () => {
     setChecking(true);
-    try {
-      const res = await fetch("/api/update", { cache: "no-store" });
-      const j = await res.json();
-      setStatus(j);
-    } catch (err) {
-      setStatus({
-        ok: false,
-        error: (err as Error).message || "Couldn't reach update endpoint",
-      });
-    } finally {
-      setChecking(false);
-    }
+    const r = await safeFetch<
+      Exclude<Status, null> extends infer S
+        ? S extends { ok: true }
+          ? S
+          : never
+        : never
+    >("/api/update", { cache: "no-store" });
+    setStatus(r.ok ? r.data : { ok: false, error: r.error });
+    setChecking(false);
   }, []);
 
   useEffect(() => {
@@ -62,19 +60,10 @@ export function UpdateCard() {
   const update = useCallback(async () => {
     setUpdating(true);
     setResponse(null);
-    try {
-      const res = await fetch("/api/update", { method: "POST" });
-      const j = (await res.json()) as UpdateResponse;
-      setResponse(j);
-    } catch (err) {
-      setResponse({
-        ok: false,
-        error: (err as Error).message || "Update request failed",
-      });
-    } finally {
-      setUpdating(false);
-      void check();
-    }
+    const r = await safeFetch<UpdateResponse>("/api/update", { method: "POST" });
+    setResponse(r.ok ? r.data : { ok: false, error: r.error });
+    setUpdating(false);
+    void check();
   }, [check]);
 
   return (
