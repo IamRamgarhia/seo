@@ -129,13 +129,14 @@
   html {
     @apply font-sans;
     color-scheme: dark;
-    /* Linear-style base. 15px keeps the UI compact and scannable while
-       still readable. All rem-based components scale proportionally. */
-    font-size: 15px;
+    /* Base 16.5px — bigger than Linear's 13-14 but readable for a daily
+       work tool. Components still feel compact because we use tight
+       line-heights, not because text is small. */
+    font-size: 16.5px;
   }
   body {
     @apply bg-background text-foreground;
-    font-size: 0.9375rem;
+    font-size: 1rem;
     line-height: 1.55;
     letter-spacing: -0.005em;
     font-feature-settings:
@@ -150,6 +151,13 @@
     background-color: oklch(0.62 0.155 275 / 0.4);
     color: oklch(0.99 0 0);
   }
+
+  /* Lift the smallest sizes so labels and helper text remain readable
+     at the larger base. Pro mode keeps things tight unchanged. */
+  html:not([data-ui-mode="pro"]) .text-\[10px\] { font-size: 0.74rem; line-height: 1.4; }
+  html:not([data-ui-mode="pro"]) .text-\[11px\] { font-size: 0.78rem; line-height: 1.45; }
+  html:not([data-ui-mode="pro"]) .text-\[12px\] { font-size: 0.83rem; line-height: 1.5; }
+  html:not([data-ui-mode="pro"]) .text-\[13px\] { font-size: 0.9rem; line-height: 1.55; }
 
   *:focus-visible {
     outline: 2px solid oklch(0.62 0.155 275 / 0.6);

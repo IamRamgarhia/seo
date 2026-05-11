@@ -35,10 +35,11 @@ function getPaths() {
     "SEO Tool.lnk",
   );
   const target = path.join(cwd, "seo.cmd");
-  // Use the maskable PNG already in /public for the shortcut icon. Windows
-  // can render .ico best; .png works in modern Windows but falls back to
-  // cmd.exe's icon on older installs — good enough for v1.
-  const icon = path.join(cwd, "public", "icon-192.png");
+  // Prefer the .ico file (Windows renders ICO natively at every size);
+  // fall back to PNG if generation hasn't run yet.
+  const icoPath = path.join(cwd, "public", "icon.ico");
+  const pngPath = path.join(cwd, "public", "icon-192.png");
+  const icon = existsSync(icoPath) ? icoPath : pngPath;
   return { desktop, startMenu, target, icon, cwd };
 }
 

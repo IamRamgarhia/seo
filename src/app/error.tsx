@@ -1,42 +1,47 @@
 "use client";
 
 /**
- * Page-level error boundary. Next.js calls this whenever any server- or
- * client-rendered component inside a route throws. We:
- *
- *   - Show a friendly explanation (not a stack trace)
- *   - Offer concrete recovery options: Try again, Restart server, Copy
- *     details for an issue, Go home
- *   - Auto-log the error to /api/log-error so the user's error log
- *     captures it (fire-and-forget; failure is silent)
- *   - Show stack only behind a disclosure for power users
+ * Page-level error boundary. Translates the raw error into plain
+ * English via friendlyError(), shows actionable steps, and offers a
+ * pre-filled GitHub-issue link when we don't have a known fix.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
   ArrowLeft,
+  CheckCircle2,
   ChevronRight,
   Copy,
+  ExternalLink,
+  Bug,
   Home,
   RefreshCw,
 } from "lucide-react";
+import { friendlyError, ghIssueLink } from "@/lib/friendly-error";
 
-export default function GlobalError({
+export default function PageError({
   error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const [details, setDetails] = useState(false);
+  const fe = useMemo(
+    () =>
+      friendlyError(
+        error.message || "Unknown error",
+        "page-error-boundary",
+        error.stack,
+      ),
+    [error],
+  );
+  const issueUrl = useMemo(() => ghIssueLink(fe), [fe]);
+  const [showRaw, setShowRaw] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    // Best-effort server-side log so it appears in the error log. If the
-    // log endpoint itself is broken, swallow — we don't want errors-in-
-    // the-error-handler.
     fetch("/api/errors", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -45,7 +50,6 @@ export default function GlobalError({
         stack: error.stack,
         context: "page-error-boundary",
         url: typeof window !== "undefined" ? location.href : null,
-        digest: error.digest ?? null,
       }),
     }).catch(() => undefined);
   }, [error]);
@@ -66,28 +70,20 @@ export default function GlobalError({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // ignore — old browsers may not support clipboard
+      // ignore
     }
   }
 
   async function restart() {
-    if (
-      !confirm(
-        "Restart the server? The page will reload itself once the server is back (8–15 s).",
-      )
-    )
-      return;
+    if (!confirm("Restart the server? The page will reload itself once it's back.")) return;
     try {
       await fetch("/api/restart", { method: "POST" });
-      // Poll for the server, then reload
       setTimeout(function poll() {
         fetch("/api/health-ping", { cache: "no-store" })
           .then(() => location.reload())
           .catch(() => setTimeout(poll, 1500));
       }, 3000);
-    } catch {
-      // best-effort
-    }
+    } catch {}
   }
 
   return (
@@ -95,142 +91,168 @@ export default function GlobalError({
       <div className="space-y-2">
         <div className="inline-flex items-center gap-2 rounded-md border border-rose-500/30 bg-rose-500/10 px-2 py-1 text-[11px] font-medium text-rose-300">
           <AlertTriangle className="size-3" />
-          Something went wrong on this page
+          Error
         </div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-          Don&apos;t worry — your data is safe.
+          {fe.title}
         </h1>
-        <p className="text-[14px] text-muted-foreground">
-          The page crashed while rendering. Below are a few things that almost
-          always fix it. The error has been logged so you can review it later
-          under{" "}
-          <Link href="/settings/errors" className="text-violet-300 hover:underline">
-            Settings → Error log
-          </Link>
-          .
-        </p>
+        <p className="text-[14px] text-muted-foreground">{fe.explanation}</p>
       </div>
 
-      {/* Quick error summary */}
-      <div className="rounded-md border border-border bg-card px-3 py-2 font-mono text-[12px] text-foreground/90">
-        {error.message || "Unknown error"}
-      </div>
+      {/* Try these steps */}
+      <section className="rounded-md border border-border bg-card p-4">
+        <h2 className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <CheckCircle2 className="size-3 text-emerald-300" />
+          Try this
+        </h2>
+        <ol className="mt-2 space-y-1.5 text-[13px] text-foreground">
+          {fe.steps.map((s, i) => (
+            <li key={i} className="flex gap-2">
+              <span className="mt-0.5 grid size-4 shrink-0 place-items-center rounded bg-muted text-[10px] font-semibold text-muted-foreground">
+                {i + 1}
+              </span>
+              <span className="leading-relaxed">{s}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       {/* Recovery actions */}
-      <div className="space-y-2">
-        <h2 className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground">
-          Try one of these
-        </h2>
-        <div className="space-y-1.5">
-          <RecoveryButton
-            icon={RefreshCw}
-            title="Try this page again"
-            detail="Re-runs the request — fixes 80% of transient errors."
-            onClick={() => reset()}
-            primary
-          />
-          <RecoveryButton
-            icon={ArrowLeft}
-            title="Go back"
-            detail="Return to the previous page."
-            onClick={() => history.back()}
-          />
-          <RecoveryButton
-            icon={Home}
-            title="Go to dashboard"
-            detail="Fresh start from a known-good page."
-            href="/"
-          />
-          <RecoveryButton
-            icon={RefreshCw}
-            title="Restart the server"
-            detail="If the error keeps repeating after retry. ~10 seconds."
-            onClick={restart}
-          />
-        </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <ActionButton
+          icon={RefreshCw}
+          title="Try this page again"
+          onClick={() => reset()}
+          primary
+        />
+        <ActionButton icon={Home} title="Go to dashboard" href="/" />
+        <ActionButton
+          icon={ArrowLeft}
+          title="Go back"
+          onClick={() => history.back()}
+        />
+        <ActionButton
+          icon={RefreshCw}
+          title="Restart the server"
+          onClick={restart}
+        />
       </div>
 
-      {/* Power-user details */}
+      {fe.helpLink && (
+        <Link
+          href={fe.helpLink.href}
+          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-violet-300 hover:underline"
+        >
+          {fe.helpLink.label}
+          <ExternalLink className="size-3" />
+        </Link>
+      )}
+
+      {/* GitHub issue prefill */}
+      {issueUrl && (
+        <div className="rounded-md border border-border bg-muted/20 p-4">
+          <h3 className="flex items-center gap-2 text-[13px] font-semibold text-foreground">
+            <Bug className="size-3.5" />
+            Still stuck?
+          </h3>
+          <p className="mt-1 text-[12px] text-muted-foreground">
+            Open a pre-filled GitHub issue — everything the maintainer needs is
+            already in the body. Takes ~10 seconds.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <a
+              href={issueUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground hover:opacity-90"
+            >
+              <Bug className="size-3.5" />
+              Report on GitHub
+              <ExternalLink className="size-3 opacity-70" />
+            </a>
+            <button
+              type="button"
+              onClick={copyDetails}
+              className="inline-flex items-center gap-1.5 rounded border border-border bg-card px-3 py-1.5 text-[12px] text-muted-foreground hover:bg-accent hover:text-foreground"
+            >
+              <Copy className="size-3.5" />
+              {copied ? "Copied" : "Copy details"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Power-user raw details */}
       <details
-        open={details}
-        onToggle={(e) => setDetails((e.target as HTMLDetailsElement).open)}
-        className="rounded-md border border-border bg-muted/20"
+        open={showRaw}
+        onToggle={(e) => setShowRaw((e.target as HTMLDetailsElement).open)}
+        className="rounded-md border border-border bg-muted/10"
       >
         <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-[12px] font-medium text-muted-foreground transition-colors hover:text-foreground">
           <ChevronRight
-            className={`size-3 transition-transform ${details ? "rotate-90" : ""}`}
+            className={`size-3 transition-transform ${showRaw ? "rotate-90" : ""}`}
           />
-          Technical details
+          Raw error
           {error.digest && (
             <code className="ml-2 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
               #{error.digest}
             </code>
           )}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              copyDetails();
-            }}
-            className="ml-auto inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            <Copy className="size-3" />
-            {copied ? "Copied" : "Copy"}
-          </button>
         </summary>
-        {details && (
+        {showRaw && (
           <pre className="overflow-x-auto border-t border-border bg-background/50 px-3 py-2 font-mono text-[11px] leading-relaxed text-muted-foreground">
+            {error.message}
+            {"\n\n"}
             {error.stack ?? "(no stack trace)"}
           </pre>
         )}
       </details>
+
+      <p className="text-[11px] text-muted-foreground">
+        Already logged to{" "}
+        <Link href="/settings/errors" className="text-violet-300 hover:underline">
+          Settings → Error log
+        </Link>
+        .
+      </p>
     </div>
   );
 }
 
-function RecoveryButton({
+function ActionButton({
   icon: Icon,
   title,
-  detail,
   onClick,
   href,
   primary,
 }: {
   icon: typeof Home;
   title: string;
-  detail: string;
   onClick?: () => void;
   href?: string;
   primary?: boolean;
 }) {
-  const className = `group flex w-full items-center gap-3 rounded-md border px-3 py-2.5 text-left transition-colors ${
+  const className = `group flex items-center gap-2 rounded-md border px-3 py-2 text-[13px] font-medium transition-colors ${
     primary
-      ? "border-primary/40 bg-primary/10 hover:bg-primary/20"
-      : "border-border bg-card hover:bg-accent"
+      ? "border-primary/40 bg-primary/10 text-foreground hover:bg-primary/20"
+      : "border-border bg-card text-foreground hover:bg-accent"
   }`;
   const inner = (
     <>
       <Icon
-        className={`size-4 shrink-0 ${primary ? "text-primary" : "text-muted-foreground"}`}
+        className={`size-3.5 ${primary ? "text-primary" : "text-muted-foreground"}`}
       />
-      <div className="flex-1">
-        <div className="text-[13px] font-medium text-foreground">{title}</div>
-        <div className="text-[11px] text-muted-foreground">{detail}</div>
-      </div>
+      <span className="flex-1 text-left">{title}</span>
       <ChevronRight
         className={`size-3 ${primary ? "text-primary" : "text-muted-foreground/60"} transition-transform group-hover:translate-x-0.5`}
       />
     </>
   );
-  if (href) {
-    return (
-      <Link href={href} className={className}>
-        {inner}
-      </Link>
-    );
-  }
-  return (
+  return href ? (
+    <Link href={href} className={className}>
+      {inner}
+    </Link>
+  ) : (
     <button type="button" onClick={onClick} className={className}>
       {inner}
     </button>

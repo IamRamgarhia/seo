@@ -70,6 +70,20 @@ Say "Applying database migrations"
 node scripts/migrate.cjs
 if ($LASTEXITCODE -ne 0) { Die "Migrations failed" }
 
+# ---- 4b. icons --------------------------------------------------------------
+if (Test-Path "scripts/gen-icons.mjs") {
+    $iconStat = Get-Item "public/icon-192.png" -ErrorAction SilentlyContinue
+    # Regenerate if missing or if the placeholder (<200B) is still in place
+    if (-not $iconStat -or $iconStat.Length -lt 200) {
+        Say "Generating app icons (PNG + ICO + favicon)"
+        node scripts/gen-icons.mjs
+        if ($LASTEXITCODE -ne 0) { Warn "Icon generation failed — manifest will still render the SVG icon" }
+    }
+    else {
+        Say "Icons already generated (skipping)"
+    }
+}
+
 # ---- 5. .env.local ---------------------------------------------------------
 if (-not (Test-Path ".env.local")) {
     if (Test-Path ".env.example") {
