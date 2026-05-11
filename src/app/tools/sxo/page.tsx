@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Eye, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { runSxoAudit, type SxoState } from "./actions";
@@ -17,6 +18,12 @@ export default function SxoPage() {
     if (state?.ok) setRefreshKey((k) => k + 1);
   }, [state]);
 
+  // Auto-fill the URL when the tool is opened from a client context.
+  // The "Tools for this client" launcher links here with ?url=... so
+  // the user doesn't have to retype the domain.
+  const params = useSearchParams();
+  const presetUrl = params?.get("url") ?? "";
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
@@ -28,34 +35,38 @@ export default function SxoPage() {
 
       <form
         action={formAction}
-        className="glass-apple relative overflow-hidden rounded-2xl space-y-3 p-5"
+        className="rounded-xl border border-border bg-card p-5 shadow"
       >
-        <label className="space-y-1 text-xs">
+        <label className="block space-y-1.5 text-sm">
           <span className="text-muted-foreground">URL to audit</span>
-          <input
-            name="url"
-            required
-            placeholder="https://yoursite.com/page"
-            className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
-          />
+          {/* Input + button on one row, button visually attached to the right */}
+          <div className="flex w-full overflow-hidden rounded-md border border-input bg-background focus-within:ring-2 focus-within:ring-cyan-500/40">
+            <input
+              name="url"
+              required
+              defaultValue={presetUrl}
+              placeholder="https://yoursite.com/page"
+              className="flex-1 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground/60"
+            />
+            <button
+              type="submit"
+              disabled={pending}
+              className="inline-flex items-center gap-1.5 border-l border-input bg-cyan-500/15 px-4 text-sm font-medium text-cyan-300 transition-colors hover:bg-cyan-500/25 disabled:opacity-50"
+            >
+              {pending ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Auditing…
+                </>
+              ) : (
+                <>
+                  <Eye className="size-4" />
+                  Run SXO audit
+                </>
+              )}
+            </button>
+          </div>
         </label>
-        <button
-          type="submit"
-          disabled={pending}
-          className="inline-flex h-10 items-center rounded-md bg-cyan-500/15 px-5 text-sm font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/30 hover:bg-cyan-500/25 disabled:opacity-50"
-        >
-          {pending ? (
-            <>
-              <Loader2 className="mr-2 size-4 animate-spin" />
-              Auditing…
-            </>
-          ) : (
-            <>
-              <Eye className="mr-2 size-4" />
-              Run SXO audit
-            </>
-          )}
-        </button>
       </form>
 
       {state && !state.ok && (

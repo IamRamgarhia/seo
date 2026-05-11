@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
   AlertCircle,
   Check,
@@ -35,12 +35,17 @@ export function ShareCard({
     { kind: "idle" } | { kind: "sent" } | { kind: "error"; msg: string }
   >({ kind: "idle" });
 
-  const url =
-    typeof window !== "undefined" && shareToken
-      ? `${window.location.origin}/portal/${shareToken}`
-      : shareToken
-        ? `/portal/${shareToken}`
-        : null;
+  // Render the relative path on first paint to match server output, then
+  // upgrade to absolute on the client after mount. Avoids hydration
+  // mismatch errors that fired when the SSR pass produced "/portal/..."
+  // but the client immediately rendered "http://localhost:3001/portal/...".
+  const [origin, setOrigin] = useState("");
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
+  const url = shareToken
+    ? `${origin}/portal/${shareToken}`
+    : null;
 
   const copy = async () => {
     if (!url) return;
