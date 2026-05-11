@@ -196,4 +196,5 @@ export const TOOL_LABELS: Record<string, string> = {
   wayback: "Wayback Machine snapshots",
   youtube: "YouTube research",
   "meta-tag-generator": "Meta tag generator",
+  "code-generator": "SEO code / plugin generator",
 };

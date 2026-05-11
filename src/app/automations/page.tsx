@@ -85,13 +85,22 @@ export default async function AutomationsPage() {
         icon={Workflow}
         accent="fuchsia"
         actions={
-          <Link
-            href="/automations/templates"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/10 hover:text-foreground"
-          >
-            <LayoutTemplate className="size-3.5" />
-            Templates
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/automations/overview"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-500/10 px-3 py-2 text-xs font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/30 transition-colors hover:bg-cyan-500/20"
+            >
+              <Workflow className="size-3.5" />
+              What's automated
+            </Link>
+            <Link
+              href="/automations/templates"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/10 hover:text-foreground"
+            >
+              <LayoutTemplate className="size-3.5" />
+              Templates
+            </Link>
+          </div>
         }
         meta={
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-xs text-muted-foreground ring-1 ring-inset ring-white/10">

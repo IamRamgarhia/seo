@@ -636,6 +636,14 @@ const tools = [
     accent: "violet",
   },
   {
+    href: "/tools/code-generator",
+    icon: Code2,
+    title: "SEO code / plugin generator",
+    description:
+      "AI writes the code you need to apply SEO changes — WordPress plugins, .htaccess rules, Elementor HTML, Shopify Liquid, Next.js routes, schema markup. With install steps + live preview.",
+    accent: "violet",
+  },
+  {
     href: "/tools/reddit-research",
     icon: Flame,
     title: "Reddit research",
