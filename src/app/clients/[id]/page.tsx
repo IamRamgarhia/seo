@@ -25,6 +25,8 @@ import { db } from "@/db/client";
 import { audits, clients, keywords, tasks } from "@/db/schema";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ScoreGauge } from "@/components/ui/score-gauge";
+import { SiteFavicon } from "@/components/ui/site-favicon";
+import { StatCard } from "@/components/ui/stat-card";
 import {
   applyNicheTemplates,
   applyStackTemplates,
@@ -239,15 +241,12 @@ export default async function ClientDetailPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      {/* HERO */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 px-6 py-7 backdrop-blur-md">
-        <div className="pointer-events-none absolute -left-20 -top-20 size-72 rounded-full bg-gradient-to-br from-violet-500/30 to-fuchsia-500/15 blur-[100px]" />
-        <div className="pointer-events-none absolute -right-16 -bottom-16 size-56 rounded-full bg-cyan-500/15 blur-[80px]" />
-
-        <nav className="relative flex items-center gap-1 text-xs text-muted-foreground">
+      {/* HERO — shadcn-admin style: flat card, real favicon, no orbs */}
+      <section className="rounded-xl border border-border bg-card p-6 shadow">
+        <nav className="flex items-center gap-1 text-xs text-muted-foreground">
           <Link
             href="/clients"
-            className="rounded px-1 py-0.5 transition-colors hover:bg-white/5 hover:text-foreground"
+            className="rounded px-1 py-0.5 transition-colors hover:text-foreground"
           >
             Clients
           </Link>
@@ -255,15 +254,13 @@ export default async function ClientDetailPage({
           <span className="text-foreground">{client.name}</span>
         </nav>
 
-        <div className="relative z-10 mt-4 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="grid size-12 place-items-center rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-indigo-600 text-base font-bold text-white shadow-lg shadow-violet-500/30 ring-1 ring-inset ring-white/30">
-                {client.name.slice(0, 1).toUpperCase()}
-              </div>
+              <SiteFavicon url={client.url} name={client.name} size={48} />
               <div className="space-y-1">
-                <h1 className="text-3xl font-semibold tracking-tight">
-                  <span className="text-gradient-brand">{client.name}</span>
+                <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+                  {client.name}
                 </h1>
                 <a
                   href={client.url}
@@ -287,7 +284,7 @@ export default async function ClientDetailPage({
                 </span>
               )}
               {client.techStack && client.techStack.length > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-0.5 text-xs text-muted-foreground ring-1 ring-inset ring-white/10">
+                <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
                   <Layers className="size-3" />
                   {client.techStack.length} techs detected
                 </span>
@@ -296,10 +293,7 @@ export default async function ClientDetailPage({
 
             <div className="flex flex-wrap items-center gap-2 pt-2">
               <form action={runAction}>
-                <Button
-                  type="submit"
-                  className="shadow-lg shadow-violet-500/25 ring-1 ring-inset ring-white/15"
-                >
+                <Button type="submit">
                   <Play className="size-3.5" />
                   Run audit
                 </Button>
@@ -309,16 +303,16 @@ export default async function ClientDetailPage({
                   className={buttonVariants({
                     variant: "outline",
                     className:
-                      "list-none cursor-pointer border-white/10 bg-white/5 [&::-webkit-details-marker]:hidden",
+                      "list-none cursor-pointer [&::-webkit-details-marker]:hidden",
                   })}
                 >
                   <FileDown className="size-3.5" />
                   Generate report
                 </summary>
-                <div className="absolute right-0 top-full z-20 mt-1 w-60 overflow-hidden rounded-lg border border-white/10 bg-card/95 shadow-xl backdrop-blur-md">
+                <div className="absolute right-0 top-full z-20 mt-1 w-60 overflow-hidden rounded-lg border border-border bg-popover shadow-xl">
                   <Link
                     href={`/reports/${client.id}?template=executive`}
-                    className="block px-3 py-2 text-sm hover:bg-white/5"
+                    className="block px-3 py-2 text-sm hover:bg-accent"
                   >
                     <div className="font-medium">Executive</div>
                     <div className="text-[11px] text-muted-foreground">
@@ -327,7 +321,7 @@ export default async function ClientDetailPage({
                   </Link>
                   <Link
                     href={`/reports/${client.id}?template=detailed`}
-                    className="block border-t border-white/5 px-3 py-2 text-sm hover:bg-white/5"
+                    className="block border-t border-border px-3 py-2 text-sm hover:bg-accent"
                   >
                     <div className="font-medium">Detailed</div>
                     <div className="text-[11px] text-muted-foreground">
@@ -336,7 +330,7 @@ export default async function ClientDetailPage({
                   </Link>
                   <Link
                     href={`/reports/${client.id}?template=technical`}
-                    className="block border-t border-white/5 px-3 py-2 text-sm hover:bg-white/5"
+                    className="block border-t border-border px-3 py-2 text-sm hover:bg-accent"
                   >
                     <div className="font-medium">Technical</div>
                     <div className="text-[11px] text-muted-foreground">
@@ -403,7 +397,7 @@ export default async function ClientDetailPage({
                   variant: "outline",
                   className:
                     client.onboardingStep === "completed"
-                      ? "border-white/10 bg-white/5"
+                      ? ""
                       : "border-violet-500/40 bg-violet-500/10 text-violet-200",
                 })}
                 title={
@@ -431,7 +425,7 @@ export default async function ClientDetailPage({
                 <Button
                   type="submit"
                   variant="outline"
-                  className="border-white/10 bg-white/5"
+                  className=""
                   title="Re-fetch logo, address, social links, and tech stack from the live site"
                 >
                   <RefreshCw className="size-3.5" />
@@ -442,15 +436,15 @@ export default async function ClientDetailPage({
           </div>
 
           {/* Score gauge in hero */}
-          <div className="relative flex items-center gap-5 rounded-2xl border border-white/10 bg-black/20 p-5 backdrop-blur">
-            <ScoreGauge score={latestCompleted?.score ?? null} size={140} />
-            <div className="space-y-1.5">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-4 rounded-lg border border-border bg-muted/30 p-4">
+            <ScoreGauge score={latestCompleted?.score ?? null} size={120} />
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-muted-foreground">
                 Latest audit
               </div>
               {latestCompleted ? (
                 <>
-                  <div className="text-sm font-medium">
+                  <div className="text-sm font-medium text-foreground">
                     {latestCompleted.completedAt?.toLocaleDateString() ?? "—"}
                   </div>
                   <div className="text-xs text-muted-foreground">
@@ -467,55 +461,29 @@ export default async function ClientDetailPage({
         </div>
       </section>
 
-      {/* STATS */}
+      {/* STATS — same StatCard component as dashboard for consistency */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 p-5 backdrop-blur-md">
-          <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-amber-500/20 blur-3xl" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-              <AlertCircle className="size-3.5 text-amber-300" />
-              Open issues
-            </div>
-            <div className="mt-2 text-4xl font-semibold tracking-tight text-gradient-amber">
-              {latestCompleted?.issuesCount ?? 0}
-            </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              From last audit
-            </div>
-          </div>
-        </div>
-
-        <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 p-5 backdrop-blur-md">
-          <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-violet-500/20 blur-3xl" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-              <ClipboardList className="size-3.5 text-violet-300" />
-              Open tasks
-            </div>
-            <div className="mt-2 text-4xl font-semibold tracking-tight text-gradient-violet">
-              {openTaskCount}
-            </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              Auto-generated + manual
-            </div>
-          </div>
-        </div>
-
-        <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 p-5 backdrop-blur-md">
-          <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-cyan-500/20 blur-3xl" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-              <Search className="size-3.5 text-cyan-300" />
-              Tracked keywords
-            </div>
-            <div className="mt-2 text-4xl font-semibold tracking-tight text-gradient-cyan">
-              {keywordCount}
-            </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              {keywordCount === 0 ? "Not tracking any yet" : "In rotation"}
-            </div>
-          </div>
-        </div>
+        <StatCard
+          label="Open issues"
+          value={latestCompleted?.issuesCount ?? 0}
+          accent="amber"
+          icon={AlertCircle}
+          hint="From last audit"
+        />
+        <StatCard
+          label="Open tasks"
+          value={openTaskCount}
+          accent="violet"
+          icon={ClipboardList}
+          hint="Auto-generated + manual"
+        />
+        <StatCard
+          label="Tracked keywords"
+          value={keywordCount}
+          accent="cyan"
+          icon={Search}
+          hint={keywordCount === 0 ? "Not tracking any yet" : "In rotation"}
+        />
       </div>
 
       {/* TOOLS LAUNCHER — everything pre-wired with this client's URL / id / OAuth */}
@@ -680,7 +648,7 @@ export default async function ClientDetailPage({
               type="submit"
               variant="outline"
               size="sm"
-              className="border-white/10 bg-white/5"
+              className=""
             >
               <RotateCw className="size-3" />
               Re-detect
@@ -732,7 +700,7 @@ export default async function ClientDetailPage({
                 type="submit"
                 variant="outline"
                 size="sm"
-                className="border-white/10 bg-white/5"
+                className=""
               >
                 <RotateCw className="size-3" />
                 Re-apply templates
@@ -764,7 +732,7 @@ export default async function ClientDetailPage({
               type="submit"
               variant="outline"
               size="sm"
-              className="border-white/10 bg-white/5"
+              className=""
             >
               <RotateCw className="size-3" />
               Re-apply checklist
