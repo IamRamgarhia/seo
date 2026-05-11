@@ -16,6 +16,8 @@ export type SerpScanInput = {
   country?: string;
   /** Domain to flag as the client's own (so we can mark "isClient" rows) */
   clientDomain?: string;
+  /** How many results to ask Google for (10, 20, 50, 100). Defaults to 20. */
+  topN?: 10 | 20 | 50 | 100;
 };
 
 export type SerpScanOutput = {
@@ -80,9 +82,10 @@ export async function scanSerp(opts: SerpScanInput): Promise<SerpScanOutput> {
     const out: SerpScanOutput = empty();
 
     try {
+    const topN = opts.topN ?? 20;
     const url = `https://www.google.com/search?q=${encodeURIComponent(
       opts.query,
-    )}&hl=en&gl=${country}&pws=0&num=20`;
+    )}&hl=en&gl=${country}&pws=0&num=${topN}`;
 
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.waitForTimeout(900);

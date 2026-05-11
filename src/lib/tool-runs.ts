@@ -152,4 +152,6 @@ export const TOOL_LABELS: Record<string, string> = {
   "domain-overview": "Domain overview",
   "image-gen": "AI image generation",
   "utm-attribution": "Multi-touch attribution",
+  "rank-where": "Country-aware rank checker",
+  "wp-hack-scan": "WordPress hack scan",
 };

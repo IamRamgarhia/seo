@@ -732,6 +732,22 @@ const tools = [
       "First-touch, last-touch, assisted, linear, position-based attribution from any UTM-tagged touch CSV. No CRM needed.",
     accent: "violet",
   },
+  {
+    href: "/tools/rank-where",
+    icon: Compass,
+    title: "Where do I rank? (country-aware) ⭐",
+    description:
+      "Find your exact position for any keyword × country in Google's top 100. See who outranks you, AI Overview presence + citation, specific fixes to climb.",
+    accent: "emerald",
+  },
+  {
+    href: "/tools/wp-hack-scan",
+    icon: ShieldCheck,
+    title: "WordPress hack / malware scan ⭐",
+    description:
+      "Probes a live WP site for compromise indicators: backdoor files, exposed configs, JS injection, hidden iframes, spam injection, cloaking. Returns containment + cleanup + prevention playbook.",
+    accent: "rose",
+  },
 ];
 
 const accentMap: Record<string, string> = {
