@@ -28,6 +28,7 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { ScoreGauge } from "@/components/ui/score-gauge";
 import { SiteFavicon } from "@/components/ui/site-favicon";
 import { StatCard } from "@/components/ui/stat-card";
+import { BrandingPreflightBanner } from "./branding-preflight-banner";
 import {
   applyNicheTemplates,
   applyStackTemplates,
@@ -120,12 +121,18 @@ function ScoreBadge({ score }: { score: number | null }) {
 
 export default async function ClientDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { id } = await params;
   const clientId = Number(id);
   if (!Number.isFinite(clientId)) notFound();
+  const sp = (await searchParams) ?? {};
+  const brandingNeeded = sp["branding-needed"] === "1";
+  const brandingTemplate =
+    typeof sp.template === "string" ? sp.template : "executive";
 
   const [client] = await db
     .select()
@@ -242,6 +249,12 @@ export default async function ClientDetailPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      {brandingNeeded && (
+        <BrandingPreflightBanner
+          clientId={clientId}
+          template={brandingTemplate}
+        />
+      )}
       {/* HERO — shadcn-admin style: flat card, real favicon, no orbs */}
       <section className="rounded-xl border border-border bg-card p-6 shadow">
         <nav className="flex items-center gap-1 text-xs text-muted-foreground">

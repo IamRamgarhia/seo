@@ -6,6 +6,7 @@ import {
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients, reportArchives } from "@/db/schema";
+import { getSetting } from "@/lib/settings-store";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,22 @@ export async function GET(
     .limit(1);
   if (!client) {
     return NextResponse.json({ error: "Client not found" }, { status: 404 });
+  }
+
+  // Branding pre-flight: if workspace brand isn't set up AND the user
+  // hasn't opted out for this client, bounce them back to the client
+  // page with a banner. They can either set branding or check "skip".
+  if (!client.brandingSkipped) {
+    const [brandName, brandLogo] = await Promise.all([
+      getSetting<string>("brand.name"),
+      getSetting<string>("brand.logo_data_url"),
+    ]);
+    if (!brandName || !brandLogo) {
+      const back = new URL(`/clients/${id}`, request.url);
+      back.searchParams.set("branding-needed", "1");
+      back.searchParams.set("template", template);
+      return NextResponse.redirect(back);
+    }
   }
 
   let pdf: Buffer;

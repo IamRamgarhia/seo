@@ -67,6 +67,12 @@ export const clients = sqliteTable("clients", {
   googleAccessToken: text("google_access_token"),
   googleAccessTokenExpiresAt: integer("google_access_token_expires_at"),
   googleConnectedEmail: text("google_connected_email"),
+  /** Per-client opt-out for the report-generation branding pre-flight.
+      When TRUE, the user has explicitly chosen "generate reports without
+      branding" for this client — we stop asking. */
+  brandingSkipped: integer("branding_skipped", { mode: "boolean" })
+    .notNull()
+    .default(false),
   ...timestamps,
 });
 
@@ -1472,6 +1478,54 @@ export const toolRuns = sqliteTable("tool_runs", {
 });
 export type ToolRun = typeof toolRuns.$inferSelect;
 export type NewToolRun = typeof toolRuns.$inferInsert;
+
+/**
+ * Per-finding tracking for AI tools. Each row is one actionable item the
+ * user can mark complete. Shared across SXO / GEO / E-E-A-T / AI site
+ * audit / schema check / etc. — the checklist UX is built once and every
+ * tool gets it for free.
+ */
+export const toolFindings = sqliteTable(
+  "tool_findings",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    runId: integer("run_id")
+      .notNull()
+      .references(() => toolRuns.id, { onDelete: "cascade" }),
+    clientId: integer("client_id").references(() => clients.id, {
+      onDelete: "cascade",
+    }),
+    toolId: text("tool_id").notNull(),
+    /** Stable identifier within a tool ("sxo.page_promise.no_h1" etc.).
+        Re-check uses this to match findings across runs. */
+    signature: text("signature").notNull(),
+    title: text("title").notNull(),
+    category: text("category"),
+    severity: text("severity", {
+      enum: ["critical", "high", "medium", "low", "pass"],
+    })
+      .notNull()
+      .default("medium"),
+    details: text("details"),
+    fixSteps: text("fix_steps"),
+    codeSnippet: text("code_snippet"),
+    status: text("status", {
+      enum: ["new", "in_progress", "resolved", "ignored"],
+    })
+      .notNull()
+      .default("new"),
+    completedAt: integer("completed_at", { mode: "timestamp" }),
+    completedNote: text("completed_note"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+);
+export type ToolFinding = typeof toolFindings.$inferSelect;
+export type NewToolFinding = typeof toolFindings.$inferInsert;
 
 /**
  * Chat conversation persistence — covers SEO chat, Ask the Tool, and the
