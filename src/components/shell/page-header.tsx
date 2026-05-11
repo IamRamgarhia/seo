@@ -35,53 +35,51 @@ export function PageHeader({
   meta,
 }: PageHeaderProps) {
   return (
-    <section className="border-b border-border pb-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1.5">
-          {crumbs && crumbs.length > 0 && (
-            <nav className="flex items-center gap-1 text-[12px] text-muted-foreground">
-              {crumbs.map((c, i) => (
-                <span key={i} className="flex items-center gap-1">
-                  {i > 0 && (
-                    <ChevronRight className="size-3 text-muted-foreground/50" />
-                  )}
-                  {c.href ? (
-                    <Link
-                      href={c.href}
-                      className="rounded px-0.5 transition-colors hover:text-foreground"
-                    >
-                      {c.label}
-                    </Link>
-                  ) : (
-                    <span className="text-foreground">{c.label}</span>
-                  )}
-                </span>
-              ))}
-            </nav>
+    <section className="flex flex-wrap items-center justify-between gap-3 space-y-2">
+      <div className="min-w-0 space-y-1">
+        {crumbs && crumbs.length > 0 && (
+          <nav className="flex items-center gap-1 text-xs text-muted-foreground">
+            {crumbs.map((c, i) => (
+              <span key={i} className="flex items-center gap-1">
+                {i > 0 && (
+                  <ChevronRight className="size-3 text-muted-foreground/50" />
+                )}
+                {c.href ? (
+                  <Link
+                    href={c.href}
+                    className="transition-colors hover:text-foreground"
+                  >
+                    {c.label}
+                  </Link>
+                ) : (
+                  <span className="text-foreground">{c.label}</span>
+                )}
+              </span>
+            ))}
+          </nav>
+        )}
+
+        <div className="flex items-center gap-2">
+          {Icon && (
+            <Icon className={cn("h-5 w-5 shrink-0", accentText[accent])} />
           )}
-
-          <div className="flex items-center gap-2">
-            {Icon && (
-              <Icon className={cn("size-4 shrink-0", accentText[accent])} />
-            )}
-            <h1 className="pro-mode-marker text-[18px] font-semibold leading-tight tracking-tight text-foreground">
-              {title}
-            </h1>
-          </div>
-
-          {description && (
-            <p className="pro-hide-help max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
-              {description}
-            </p>
-          )}
-
-          {meta && <div className="pt-1">{meta}</div>}
+          <h1 className="pro-mode-marker text-2xl font-bold tracking-tight text-foreground">
+            {title}
+          </h1>
         </div>
 
-        {actions && (
-          <div className="flex shrink-0 items-center gap-2">{actions}</div>
+        {description && (
+          <p className="pro-hide-help max-w-3xl text-sm text-muted-foreground">
+            {description}
+          </p>
         )}
+
+        {meta && <div className="pt-1">{meta}</div>}
       </div>
+
+      {actions && (
+        <div className="flex shrink-0 items-center gap-2">{actions}</div>
+      )}
     </section>
   );
 }

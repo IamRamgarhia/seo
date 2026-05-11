@@ -15,7 +15,7 @@ export async function TopBar({
 }) {
   const mode = await getUiMode();
   return (
-    <header className="sticky top-0 z-30 flex h-11 shrink-0 items-center gap-3 border-b border-border bg-background px-3 md:px-4">
+    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4">
       <MobileNav unreadByHref={unreadByHref} />
       <SearchPalette />
       <NextStep />

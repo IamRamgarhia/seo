@@ -77,7 +77,7 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.5rem;
+  --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -89,42 +89,40 @@
 }
 
 .dark {
-  /* Linear-style palette. Near-black background, marginally darker
-     sidebar, very subtle borders, indigo accent (#5E6AD2 = roughly
-     oklch(0.58 0.16 275)). Flat, no tint shifts, no glow. */
-  --background: oklch(0.135 0.004 270);
-  --foreground: oklch(0.97 0.003 270);
-  --card: oklch(0.165 0.004 270);
-  --card-foreground: oklch(0.97 0.003 270);
-  --popover: oklch(0.18 0.005 270);
-  --popover-foreground: oklch(0.97 0.003 270);
-  /* Indigo accent — Linear's exact zone */
-  --primary: oklch(0.62 0.155 275);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.2 0.005 270);
-  --secondary-foreground: oklch(0.97 0.003 270);
-  --muted: oklch(0.19 0.004 270);
-  --muted-foreground: oklch(0.7 0.008 270);
-  --accent: oklch(0.22 0.006 270);
-  --accent-foreground: oklch(0.97 0.003 270);
-  --destructive: oklch(0.63 0.21 25);
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.62 0.155 275 / 55%);
-  --chart-1: oklch(0.68 0.16 275);
-  --chart-2: oklch(0.74 0.14 200);
-  --chart-3: oklch(0.78 0.16 80);
-  --chart-4: oklch(0.7 0.2 25);
-  --chart-5: oklch(0.74 0.16 320);
-  /* Sidebar slightly darker than the canvas — Linear's exact trick */
-  --sidebar: oklch(0.118 0.003 270);
-  --sidebar-foreground: oklch(0.97 0.003 270);
-  --sidebar-primary: oklch(0.62 0.155 275);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.21 0.005 270);
-  --sidebar-accent-foreground: oklch(0.97 0.003 270);
-  --sidebar-border: oklch(1 0 0 / 6%);
-  --sidebar-ring: oklch(0.62 0.155 275 / 55%);
+  /* shadcn-admin dark theme — direct port of the official shadcn-admin
+     CSS variables (https://shadcn-admin.netlify.app). Neutral zinc-ish
+     palette, off-white foreground, very subtle borders, default radius. */
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
@@ -134,18 +132,18 @@
   html {
     @apply font-sans;
     color-scheme: dark;
-    font-size: 15px;
+    /* shadcn-admin uses default 16px html with text-sm (14px) as body.
+       Matches every shadcn/ui example so component proportions look
+       exactly like the reference template. */
+    font-size: 16px;
   }
   body {
     @apply bg-background text-foreground;
-    font-size: 1rem;
-    line-height: 1.55;
-    letter-spacing: -0.005em;
+    font-size: 0.875rem; /* shadcn default — text-sm */
+    line-height: 1.5;
     font-feature-settings:
-      "ss01" on,
-      "cv11" on,
-      "calt" on,
-      "kern" on;
+      "rlig" 1,
+      "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -194,27 +192,13 @@
   }
 }
 
-/* ============================================================
- * Guided-mode typographic scale — placed OUTSIDE @layer base so it
- * has higher cascade precedence than Tailwind's utilities layer.
- * Without this, Tailwind's text-[11px] / text-xs / etc. would always
- * win and labels would render at their literal pixel values (which
- * read microscopic at the 15px base). We collapse the dozen size
- * variants scattered through the codebase into 3 readable levels:
- *
- *   caption  13px  — rarest helper text (text-[10/11px], text-xs)
- *   label    14px  — labels, captions, secondary list text
- *   body     15px  — paragraphs, primary UI (default)
- *
- * Pro mode bypasses this entirely to keep its denser look.
- * ============================================================ */
-html:not([data-ui-mode="pro"]) .text-xs { font-size: 0.87rem !important; line-height: 1.5 !important; }
-html:not([data-ui-mode="pro"]) .text-sm { font-size: 0.96rem !important; line-height: 1.55 !important; }
-html:not([data-ui-mode="pro"]) .text-\[10px\],
-html:not([data-ui-mode="pro"]) .text-\[11px\] { font-size: 0.87rem !important; line-height: 1.45 !important; }
-html:not([data-ui-mode="pro"]) .text-\[12px\],
-html:not([data-ui-mode="pro"]) .text-\[13px\] { font-size: 0.93rem !important; line-height: 1.5 !important; }
-html:not([data-ui-mode="pro"]) .text-\[14px\] { font-size: 1rem !important; line-height: 1.55 !important; }
+/* Font sizes follow Tailwind defaults (matching shadcn-admin):
+ *   text-xs  → 12px / 1rem leading
+ *   text-sm  → 14px / 1.25rem leading  (body default)
+ *   text-base → 16px / 1.5rem leading
+ *   text-lg  → 18px / 1.75rem leading
+ *   text-xl+ → headings
+ * No overrides needed; the natural scale at 16px base is correct. */
 
 @layer utilities {
   .text-gradient-brand {
@@ -279,27 +263,19 @@ html:not([data-ui-mode="pro"]) .text-\[14px\] { font-size: 1rem !important; line
     color: transparent;
   }
 
-  /* Linear-flat surfaces. Class names kept so existing components don't
-     need rewriting — the visual treatment is now flat: solid card color,
-     hairline border, no blur, no gradient, no specular highlight. */
-  .glass-panel {
-    background: var(--card);
-    border: 1px solid var(--border);
-  }
-
-  .surface-premium {
-    background: var(--card);
-    border: 1px solid var(--border);
-  }
-
-  .glass-apple {
-    background: var(--card);
-    border: 1px solid var(--border);
-  }
-
+  /* shadcn-admin card style — these class names are kept for backwards
+     compat with existing components. All map to: card bg + border +
+     subtle shadow, matching shadcn/ui's Card primitive. */
+  .glass-panel,
+  .surface-premium,
+  .glass-apple,
   .glass-apple-strong {
     background: var(--card);
+    color: var(--card-foreground);
     border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow:
+      0 1px 2px 0 oklch(0 0 0 / 0.05);
   }
 
   /* Page-enter fade — subtle, ~250ms. Used on root content. */

@@ -2,6 +2,14 @@ import { cn } from "@/lib/utils";
 import { ArrowDown, ArrowRight, ArrowUp, type LucideIcon } from "lucide-react";
 import { CountUp } from "./count-up";
 
+/**
+ * shadcn-admin-style stat card.
+ *
+ * Layout: title row (label + small icon on the right) → big tabular
+ * value → delta pill on the same line as the hint → optional spark
+ * underneath. Matches the dashboard cards on shadcn-admin.netlify.app.
+ */
+
 type Accent = "violet" | "cyan" | "amber" | "rose" | "emerald";
 
 type StatCardProps = {
@@ -13,16 +21,15 @@ type StatCardProps = {
   delta?: { value: number; label?: string };
   spark?: number[];
   className?: string;
-  /** "hero" gets larger numerals + extra padding to anchor a stats row. */
   size?: "default" | "hero" | "compact";
 };
 
-const accentIcon: Record<Accent, string> = {
-  violet: "text-violet-300",
-  cyan: "text-cyan-300",
-  amber: "text-amber-300",
-  rose: "text-rose-300",
-  emerald: "text-emerald-300",
+const accentText: Record<Accent, string> = {
+  violet: "text-violet-500 dark:text-violet-400",
+  cyan: "text-cyan-500 dark:text-cyan-400",
+  amber: "text-amber-500 dark:text-amber-400",
+  rose: "text-rose-500 dark:text-rose-400",
+  emerald: "text-emerald-500 dark:text-emerald-400",
 };
 
 const accentSpark: Record<Accent, string> = {
@@ -42,7 +49,7 @@ function Sparkline({
 }) {
   if (values.length < 2) return null;
   const w = 100;
-  const h = 24;
+  const h = 28;
   const max = Math.max(...values);
   const min = Math.min(...values);
   const range = max - min || 1;
@@ -50,12 +57,11 @@ function Sparkline({
   const points = values
     .map((v, i) => `${i * step},${h - ((v - min) / range) * h}`)
     .join(" ");
-
   return (
     <svg
       viewBox={`0 0 ${w} ${h}`}
       preserveAspectRatio="none"
-      className={cn("h-6 w-full", className)}
+      className={cn("h-7 w-full", className)}
     >
       <polyline
         points={points}
@@ -85,7 +91,7 @@ export function StatCard({
   className,
   size = "default",
 }: StatCardProps) {
-  const padding = size === "hero" ? "p-5" : size === "compact" ? "p-3" : "p-4";
+  const padding = size === "hero" ? "p-6" : size === "compact" ? "p-3" : "p-6";
   const valueSize =
     size === "hero"
       ? "text-3xl"
@@ -104,52 +110,54 @@ export function StatCard({
     delta === undefined
       ? ""
       : delta.value > 0
-        ? "text-emerald-300"
+        ? "text-emerald-500 dark:text-emerald-400"
         : delta.value < 0
-          ? "text-rose-300"
+          ? "text-rose-500 dark:text-rose-400"
           : "text-muted-foreground";
 
   return (
     <div
       className={cn(
-        "rounded-lg border border-border bg-card transition-colors hover:border-border/80",
+        "rounded-xl border bg-card text-card-foreground shadow",
         padding,
         className,
       )}
     >
-      <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
-        {Icon && <Icon className={cn("size-3.5", accentIcon[accent])} />}
-        <span className="truncate">{label}</span>
+      <div className="flex items-center justify-between space-y-0 pb-2">
+        <h3 className="text-sm font-medium tracking-tight text-muted-foreground">
+          {label}
+        </h3>
+        {Icon && (
+          <Icon className={cn("h-4 w-4", accentText[accent])} />
+        )}
+      </div>
+      <div
+        className={cn(
+          "font-bold tabular-nums tracking-tight text-foreground",
+          valueSize,
+        )}
+      >
+        {typeof value === "number" ? <CountUp value={value} /> : value}
+      </div>
+      <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
         {delta !== undefined && deltaIcon && (
           <span
             className={cn(
-              "ml-auto inline-flex items-center gap-0.5 text-[11px] font-medium tabular-nums",
+              "inline-flex items-center gap-0.5 font-medium tabular-nums",
               deltaTone,
             )}
           >
             {(() => {
               const I = deltaIcon;
-              return <I className="size-3" />;
+              return <I className="h-3 w-3" />;
             })()}
             {delta.value > 0 ? "+" : ""}
             {delta.value}
             {delta.label ? ` ${delta.label}` : ""}
           </span>
         )}
+        {hint && <span className="truncate">{hint}</span>}
       </div>
-
-      <div
-        className={cn(
-          "mt-1.5 font-semibold leading-tight tracking-tight tabular-nums text-foreground",
-          valueSize,
-        )}
-      >
-        {typeof value === "number" ? <CountUp value={value} /> : value}
-      </div>
-      {hint && (
-        <div className="mt-1 text-[11px] text-muted-foreground">{hint}</div>
-      )}
-
       {spark && spark.length > 1 && (
         <div className="mt-3">
           <Sparkline values={spark} className={accentSpark[accent]} />

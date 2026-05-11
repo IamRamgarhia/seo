@@ -284,32 +284,38 @@ export function Sidebar({
 
   return (
     <aside
-      className={`hidden shrink-0 border-r border-sidebar-border bg-sidebar transition-[width] duration-150 ease-out md:flex md:flex-col ${
-        collapsed ? "w-[60px]" : "w-[232px]"
+      className={`hidden shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-150 ease-out md:flex md:flex-col ${
+        collapsed ? "w-[60px]" : "w-[260px]"
       }`}
     >
-      {/* Workspace block — Linear-style: small square mark + name + chevron */}
+      {/* Workspace header — shadcn-admin style: rounded primary mark
+          + app name + role/version line beneath + collapse toggle */}
       <div
-        className={`flex h-[52px] shrink-0 items-center gap-2 border-b border-sidebar-border ${
+        className={`flex h-14 shrink-0 items-center gap-2 border-b border-sidebar-border ${
           collapsed ? "justify-center px-2" : "px-3"
         }`}
       >
-        <div className="grid size-6 shrink-0 place-items-center rounded-md bg-primary text-[11px] font-semibold text-primary-foreground">
+        <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">
           S
         </div>
         {!collapsed && (
           <>
-            <span className="min-w-0 flex-1 truncate text-[13px] font-medium tracking-tight text-foreground">
-              SEO tool
-            </span>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-semibold leading-none text-sidebar-foreground">
+                SEO Tool
+              </div>
+              <div className="mt-1 truncate text-xs text-sidebar-foreground/60">
+                v0.1 · local
+              </div>
+            </div>
             <button
               type="button"
               onClick={toggle}
               aria-label="Collapse sidebar"
               title="Collapse sidebar"
-              className="grid size-6 place-items-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              className="grid size-7 place-items-center rounded-md text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
             >
-              <PanelLeftClose className="size-3.5" />
+              <PanelLeftClose className="size-4" />
             </button>
           </>
         )}
@@ -329,31 +335,31 @@ export function Sidebar({
         </div>
       )}
 
-      {/* Search row */}
+      {/* Search row — shadcn-admin uses a faux-input button with a kbd hint */}
       {!collapsed ? (
-        <div className="px-2 py-2">
+        <div className="px-3 py-3">
           <button
             type="button"
             onClick={openSearch}
-            className="flex w-full items-center gap-2 rounded-md border border-transparent px-2 py-1.5 text-left text-[14px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="inline-flex h-9 w-full items-center gap-2 rounded-md border border-input bg-background/40 px-3 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
           >
-            <Search className="size-3.5 shrink-0" />
-            <span className="flex-1 truncate">Search…</span>
-            <kbd className="hidden rounded bg-muted px-1 py-0.5 font-mono text-[10px] text-muted-foreground sm:inline-flex">
+            <Search className="size-4 shrink-0" />
+            <span className="flex-1 truncate text-left">Search…</span>
+            <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium sm:inline-flex">
               ⌘K
             </kbd>
           </button>
         </div>
       ) : (
-        <div className="flex justify-center py-1">
+        <div className="flex justify-center py-2">
           <button
             type="button"
             onClick={openSearch}
             title="Search (⌘K)"
             aria-label="Search"
-            className="grid size-7 place-items-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="grid size-9 place-items-center rounded-md text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
-            <Search className="size-3.5" />
+            <Search className="size-4" />
           </button>
         </div>
       )}
@@ -374,7 +380,7 @@ export function Sidebar({
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.id)}
-                  className="flex w-full items-center justify-between rounded px-2 py-1 text-[14px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-xs font-medium text-sidebar-foreground/60 transition-colors hover:text-sidebar-foreground"
                 >
                   <span>{group.title}</span>
                   {isOpen ? (
@@ -385,7 +391,7 @@ export function Sidebar({
                 </button>
               )}
               {!collapsed && group.pinned && (
-                <div className="px-2 py-1 text-[14px] font-medium text-muted-foreground">
+                <div className="px-2 py-1.5 text-xs font-medium text-sidebar-foreground/60">
                   {group.title}
                 </div>
               )}
@@ -407,14 +413,14 @@ export function Sidebar({
                           aria-label={collapsed ? label : undefined}
                           className={
                             collapsed
-                              ? `relative flex h-8 items-center justify-center rounded ${
+                              ? `relative flex h-9 items-center justify-center rounded-md ${
                                   active
-                                    ? "bg-accent text-foreground"
-                                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                                 }`
                               : active
-                                ? "relative flex items-center gap-2 rounded px-2 py-1.5 text-[14px] font-medium text-foreground bg-accent"
-                                : "relative flex items-center gap-2 rounded px-2 py-1.5 text-[14px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                                ? "relative flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-sidebar-accent-foreground bg-sidebar-accent"
+                                : "relative flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                           }
                         >
                           <Icon
