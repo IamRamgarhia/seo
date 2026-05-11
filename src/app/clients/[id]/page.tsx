@@ -24,6 +24,7 @@ import {
 import { db } from "@/db/client";
 import { audits, clients, keywords, tasks } from "@/db/schema";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { ScoreGauge } from "@/components/ui/score-gauge";
 import { SiteFavicon } from "@/components/ui/site-favicon";
 import { StatCard } from "@/components/ui/stat-card";
@@ -293,10 +294,14 @@ export default async function ClientDetailPage({
 
             <div className="flex flex-wrap items-center gap-2 pt-2">
               <form action={runAction}>
-                <Button type="submit">
-                  <Play className="size-3.5" />
+                <SubmitButton
+                  icon={Play}
+                  pendingChildren="Running audit…"
+                  pendingToast="Starting audit"
+                  pendingToastDescription="Crawling the site and running 30+ checks. Takes ~30-60 s."
+                >
                   Run audit
-                </Button>
+                </SubmitButton>
               </form>
               <details className="group/rep relative">
                 <summary
@@ -422,15 +427,16 @@ export default async function ClientDetailPage({
                 Edit
               </Link>
               <form action={refreshMetadataAction}>
-                <Button
-                  type="submit"
+                <SubmitButton
                   variant="outline"
-                  className=""
+                  icon={RefreshCw}
+                  pendingChildren="Refreshing…"
+                  pendingToast="Refreshing site metadata"
+                  pendingToastDescription="Re-fetching logo, NAP, tech stack…"
                   title="Re-fetch logo, address, social links, and tech stack from the live site"
                 >
-                  <RefreshCw className="size-3.5" />
                   Refresh
-                </Button>
+                </SubmitButton>
               </form>
             </div>
           </div>

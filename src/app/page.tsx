@@ -450,7 +450,7 @@ export default async function DashboardPage() {
               }))}
             colorClass="text-violet-500"
             height={220}
-            formatValue={(v) => `${Math.round(v)}`}
+            formatValue="score"
           />
         </section>
       )}

@@ -26,8 +26,19 @@ type Props = {
   data: Point[];
   /** Optional Tailwind color class for the line / fill (e.g. "text-violet-500") */
   colorClass?: string;
-  /** Format the y-axis label and tooltip value (e.g. score, traffic count) */
-  formatValue?: (v: number) => string;
+  /**
+   * Format hint for the y-axis label and tooltip value. Must be a
+   * serializable string (NOT a function) so server components can pass
+   * it. Pick from the supported tokens below or send a printf-style
+   * suffix like "%v ms" / "%v K". Default formats as a localized integer.
+   *
+   *   - "int"      → round + locale group ("12,345")
+   *   - "decimal"  → 1 decimal place ("12.3")
+   *   - "percent"  → "%v%"  ("85%")
+   *   - "score"    → integer 0-100
+   *   - any string containing "%v" replaces it with the value
+   */
+  formatValue?: string;
   /** Show axes (default true) */
   showAxes?: boolean;
   /** Height in pixels (default 200) */
@@ -36,14 +47,24 @@ type Props = {
   emptyHint?: string;
 };
 
+function formatNumber(v: number, fmt: string | undefined): string {
+  if (!fmt || fmt === "int") return Math.round(v).toLocaleString();
+  if (fmt === "decimal") return v.toFixed(1);
+  if (fmt === "percent") return `${Math.round(v)}%`;
+  if (fmt === "score") return `${Math.round(v)}`;
+  if (fmt.includes("%v")) return fmt.replace("%v", v.toLocaleString());
+  return v.toLocaleString();
+}
+
 export function AreaChart({
   data,
   colorClass = "text-violet-500",
-  formatValue = (v) => v.toLocaleString(),
+  formatValue,
   showAxes = true,
   height = 200,
   emptyHint = "Not enough data yet",
 }: Props) {
+  const fmt = (v: number) => formatNumber(v, formatValue);
   if (data.length < 2) {
     return (
       <div
@@ -94,7 +115,7 @@ export function AreaChart({
               fontSize={11}
               tickLine={false}
               axisLine={false}
-              tickFormatter={formatValue}
+              tickFormatter={fmt}
               width={40}
             />
           )}
@@ -110,7 +131,7 @@ export function AreaChart({
             }}
             labelStyle={{ color: "oklch(0.708 0 0)", marginBottom: 2 }}
             formatter={(value) =>
-              [formatValue(Number(value) || 0), ""] as [string, string]
+              [fmt(Number(value) || 0), ""] as [string, string]
             }
           />
           <Area
