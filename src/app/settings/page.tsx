@@ -108,6 +108,25 @@ export default async function SettingsPage() {
       {/* Updates */}
       <UpdateCard />
 
+      {/* Install as app — quick link */}
+      <Link
+        href="/settings/install"
+        className="group flex items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
+      >
+        <div className="grid size-8 shrink-0 place-items-center rounded-md bg-primary/15 text-primary">
+          <Sparkles className="size-4" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[14px] font-medium text-foreground">
+            Install as an app
+          </div>
+          <div className="text-[12px] text-muted-foreground">
+            Desktop shortcut, Start Menu entry, pin to taskbar, own window.
+          </div>
+        </div>
+        <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+      </Link>
+
       {/* Workspace */}
       <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
         <div className="pointer-events-none absolute -left-12 -top-12 size-40 rounded-full bg-violet-500/15 blur-3xl" />

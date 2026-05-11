@@ -283,94 +283,84 @@ export function Sidebar({
 
   return (
     <aside
-      className={`glass-apple hidden shrink-0 border-r border-white/[0.06] transition-[width] duration-200 ease-out md:flex md:flex-col ${
-        collapsed ? "w-[72px]" : "w-72"
+      className={`hidden shrink-0 border-r border-sidebar-border bg-sidebar transition-[width] duration-150 ease-out md:flex md:flex-col ${
+        collapsed ? "w-[60px]" : "w-[232px]"
       }`}
     >
-      {/* Brand */}
+      {/* Workspace block — Linear-style: small square mark + name + chevron */}
       <div
-        className={`relative flex h-[68px] items-center gap-3 border-b border-white/[0.06] ${
-          collapsed ? "justify-center px-2" : "px-5"
+        className={`flex h-[52px] shrink-0 items-center gap-2 border-b border-sidebar-border ${
+          collapsed ? "justify-center px-2" : "px-3"
         }`}
       >
-        <div className="pointer-events-none absolute -left-12 -top-10 size-40 rounded-full bg-violet-500/45 blur-3xl" />
-        <div className="pointer-events-none absolute right-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-violet-500/40 to-transparent" />
-        <div className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-indigo-600 text-base font-bold text-white shadow-lg shadow-violet-500/50 ring-1 ring-inset ring-white/30">
-          <span className="relative">S</span>
-          <span className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-white/35 to-transparent opacity-50" />
-          <Sparkles className="absolute -right-1 -top-1 size-3 text-amber-300 drop-shadow-[0_0_5px_oklch(0.85_0.18_75)]" />
+        <div className="grid size-6 shrink-0 place-items-center rounded-md bg-primary text-[11px] font-semibold text-primary-foreground">
+          S
         </div>
         {!collapsed && (
-          <div className="relative flex min-w-0 flex-1 flex-col leading-none">
-            <span className="truncate text-base font-semibold tracking-tight text-foreground">
+          <>
+            <span className="min-w-0 flex-1 truncate text-[13px] font-medium tracking-tight text-foreground">
               SEO tool
             </span>
-            <span className="mt-1 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-              v0.1 · local
-            </span>
-          </div>
-        )}
-        {!collapsed && (
-          <button
-            type="button"
-            onClick={toggle}
-            aria-label="Collapse sidebar"
-            title="Collapse sidebar"
-            className="relative grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground/80 transition-colors hover:bg-white/5 hover:text-foreground"
-          >
-            <PanelLeftClose className="size-4" />
-          </button>
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label="Collapse sidebar"
+              title="Collapse sidebar"
+              className="grid size-6 place-items-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <PanelLeftClose className="size-3.5" />
+            </button>
+          </>
         )}
       </div>
 
       {collapsed && (
-        <div className="flex justify-center pt-3">
+        <div className="flex justify-center py-2">
           <button
             type="button"
             onClick={toggle}
             aria-label="Expand sidebar"
             title="Expand sidebar"
-            className="grid size-9 place-items-center rounded-lg text-muted-foreground/80 transition-colors hover:bg-white/5 hover:text-foreground"
+            className="grid size-7 place-items-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
-            <PanelLeftOpen className="size-4" />
+            <PanelLeftOpen className="size-3.5" />
           </button>
         </div>
       )}
 
-      {/* Find anything — opens the global search palette */}
-      {!collapsed && (
-        <div className="border-b border-white/[0.06] px-3 py-3">
+      {/* Search row */}
+      {!collapsed ? (
+        <div className="px-2 py-2">
           <button
             type="button"
             onClick={openSearch}
-            className="group flex w-full items-center gap-2 rounded-lg bg-white/[0.04] px-3 py-2 text-left text-sm text-muted-foreground ring-1 ring-inset ring-white/[0.06] transition-colors hover:bg-white/[0.08] hover:text-foreground"
+            className="flex w-full items-center gap-2 rounded-md border border-transparent px-2 py-1.5 text-left text-[13px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
-            <Search className="size-4 shrink-0 text-violet-300" />
-            <span className="flex-1 truncate">Find a tool, client, page…</span>
-            <kbd className="hidden rounded-md bg-white/[0.05] px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground ring-1 ring-inset ring-white/[0.08] sm:inline-flex">
+            <Search className="size-3.5 shrink-0" />
+            <span className="flex-1 truncate">Search…</span>
+            <kbd className="hidden rounded bg-muted px-1 py-0.5 font-mono text-[10px] text-muted-foreground sm:inline-flex">
               ⌘K
             </kbd>
           </button>
         </div>
-      )}
-      {collapsed && (
-        <div className="flex justify-center pt-2">
+      ) : (
+        <div className="flex justify-center py-1">
           <button
             type="button"
             onClick={openSearch}
-            title="Find anything (⌘K)"
-            aria-label="Find anything"
-            className="grid size-9 place-items-center rounded-lg text-muted-foreground/80 transition-colors hover:bg-white/5 hover:text-foreground"
+            title="Search (⌘K)"
+            aria-label="Search"
+            className="grid size-7 place-items-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
-            <Search className="size-4" />
+            <Search className="size-3.5" />
           </button>
         </div>
       )}
 
       {/* Nav */}
       <nav
-        className={`flex-1 overflow-y-auto py-3 ${
-          collapsed ? "px-2" : "px-3"
+        className={`flex-1 overflow-y-auto pb-3 ${
+          collapsed ? "px-1.5" : "px-2"
         }`}
       >
         {groups.map((group) => {
@@ -378,34 +368,34 @@ export function Sidebar({
             group.pinned ||
             (openGroups[group.id] ?? group.defaultOpen ?? false);
           return (
-            <div key={group.id} className="mb-3">
+            <div key={group.id} className="mt-3 first:mt-1">
               {!collapsed && !group.pinned && (
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.id)}
-                  className="group flex w-full items-center justify-between rounded-md px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70 transition-colors hover:bg-white/[0.04] hover:text-foreground"
+                  className="flex w-full items-center justify-between rounded px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <span>{group.title}</span>
                   {isOpen ? (
-                    <ChevronDown className="size-3" />
+                    <ChevronDown className="size-3 opacity-60" />
                   ) : (
-                    <ChevronRight className="size-3" />
+                    <ChevronRight className="size-3 opacity-60" />
                   )}
                 </button>
               )}
               {!collapsed && group.pinned && (
-                <div className="px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
+                <div className="px-2 py-1 text-[11px] font-medium text-muted-foreground">
                   {group.title}
                 </div>
               )}
               {collapsed && (
                 <div
                   aria-hidden
-                  className="mx-auto my-2 h-px w-6 bg-white/[0.06]"
+                  className="mx-auto my-2 h-px w-5 bg-sidebar-border"
                 />
               )}
               {(isOpen || collapsed) && (
-                <ul className="space-y-0.5">
+                <ul className="mt-0.5">
                   {group.items.map(({ href, label, icon: Icon }) => {
                     const active = isActive(pathname, href);
                     return (
@@ -416,52 +406,32 @@ export function Sidebar({
                           aria-label={collapsed ? label : undefined}
                           className={
                             collapsed
-                              ? `group relative flex h-10 items-center justify-center rounded-lg transition-all ${
+                              ? `relative flex h-8 items-center justify-center rounded ${
                                   active
-                                    ? "text-foreground"
-                                    : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
+                                    ? "bg-accent text-foreground"
+                                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
                                 }`
                               : active
-                                ? "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-[14px] font-semibold text-foreground"
-                                : "group flex items-center gap-3 rounded-lg px-3 py-2 text-[14px] text-muted-foreground transition-all hover:bg-white/[0.05] hover:text-foreground"
+                                ? "relative flex items-center gap-2 rounded px-2 py-1.5 text-[13px] font-medium text-foreground bg-accent"
+                                : "relative flex items-center gap-2 rounded px-2 py-1.5 text-[13px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                           }
                         >
-                          {active && (
-                            <>
-                              <span
-                                aria-hidden
-                                className="absolute inset-0 rounded-lg bg-gradient-to-r from-violet-500/25 via-fuchsia-500/12 to-transparent"
-                              />
-                              <span
-                                aria-hidden
-                                className="absolute inset-0 rounded-lg ring-1 ring-inset ring-violet-500/35"
-                              />
-                              {!collapsed && (
-                                <span
-                                  aria-hidden
-                                  className="absolute inset-y-1.5 left-0 w-[3px] rounded-r-full bg-gradient-to-b from-violet-400 to-fuchsia-500 shadow-[0_0_12px_oklch(0.7_0.22_275_/_1)]"
-                                />
-                              )}
-                            </>
-                          )}
                           <Icon
-                            className={`relative size-[18px] shrink-0 transition-colors ${
-                              active
-                                ? "text-violet-300"
-                                : "text-muted-foreground/80 group-hover:text-foreground"
+                            className={`shrink-0 size-3.5 ${
+                              active ? "text-foreground" : ""
                             }`}
                           />
                           {!collapsed && (
-                            <span className="relative flex-1">{label}</span>
+                            <span className="flex-1 truncate">{label}</span>
                           )}
                           {unread[href] && unread[href] > 0 ? (
                             collapsed ? (
                               <span
                                 aria-label={`${unread[href]} new`}
-                                className="absolute right-1 top-1 size-2 rounded-full bg-rose-500 ring-2 ring-background"
+                                className="absolute right-1 top-1 size-1.5 rounded-full bg-rose-500"
                               />
                             ) : (
-                              <span className="relative ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500/20 px-1.5 text-[10px] font-semibold text-rose-300 ring-1 ring-inset ring-rose-500/40">
+                              <span className="ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded bg-rose-500/15 px-1 text-[10px] font-medium text-rose-300">
                                 {unread[href] > 9 ? "9+" : unread[href]}
                               </span>
                             )
@@ -477,22 +447,19 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* Status line */}
+      {/* Footer status */}
       <div
-        className={`border-t border-white/[0.06] py-3 ${
-          collapsed ? "px-2" : "px-5"
+        className={`border-t border-sidebar-border py-2 ${
+          collapsed ? "px-2" : "px-3"
         }`}
       >
         <div
-          className={`flex items-center gap-2 text-[11px] text-muted-foreground/70 ${
+          className={`flex items-center gap-2 text-[11px] text-muted-foreground ${
             collapsed ? "justify-center" : ""
           }`}
         >
-          <span className="relative flex size-1.5">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400/60 opacity-75" />
-            <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
-          </span>
-          {!collapsed && <span>Local · everything stays on this machine</span>}
+          <span className="size-1.5 rounded-full bg-emerald-400" />
+          {!collapsed && <span>Local</span>}
         </div>
       </div>
     </aside>

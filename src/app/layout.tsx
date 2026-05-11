@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { Sidebar } from "@/components/shell/sidebar";
 import { TopBar } from "@/components/shell/top-bar";
 import { AIAssistant } from "@/components/shell/ai-assistant";
+import { PowerWidget } from "@/components/shell/power-widget";
 import { ServiceWorkerRegister } from "@/components/shell/sw-register";
 import { ClientErrorCapture } from "@/components/shell/client-error-capture";
 import { QuickAddClientProvider } from "@/components/shell/quick-add-client-dialog";
@@ -55,6 +56,7 @@ export default async function RootLayout({
       "/news": u.news,
       "/agent": u.suggestions,
       "/monitor": u.pageChanges,
+      "/settings": u.updateAvailable,
     };
   } catch {
     unreadByHref = {};
@@ -81,6 +83,7 @@ export default async function RootLayout({
             </div>
           </div>
           <AIAssistant />
+          <PowerWidget />
           <ServiceWorkerRegister />
           <ClientErrorCapture />
         </QuickAddClientProvider>

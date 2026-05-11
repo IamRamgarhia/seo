@@ -72,7 +72,7 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0.5rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -84,47 +84,42 @@
 }
 
 .dark {
-  /* Slate-tinted near-black — more professional than the previous violet
-     lean. Neutral hue (240 = blue-slate) reads as "serious tool". */
-  --background: oklch(0.11 0.012 240);
-  --foreground: oklch(0.97 0.005 240);
-  /* Card lifted with clear contrast vs background */
-  --card: oklch(0.165 0.014 240);
-  --card-foreground: oklch(0.97 0.005 240);
-  --popover: oklch(0.185 0.018 240);
-  --popover-foreground: oklch(0.97 0.005 240);
-  /* Brand primary — kept violet but lower saturation so it reads
-     "serious" rather than "neon". 0.6 lightness × 0.15 chroma is the
-     Linear / Vercel zone. */
-  --primary: oklch(0.62 0.16 268);
-  --primary-foreground: oklch(0.08 0.012 240);
-  --secondary: oklch(0.22 0.018 240);
-  --secondary-foreground: oklch(0.97 0.005 240);
-  --muted: oklch(0.19 0.014 240);
-  /* MORE contrast in muted-foreground — was 0.7, now 0.78 so secondary
-     text is readable on first glance. */
-  --muted-foreground: oklch(0.78 0.018 240);
-  --accent: oklch(0.24 0.022 240);
-  --accent-foreground: oklch(0.97 0.005 240);
-  --destructive: oklch(0.65 0.2 25);
-  /* Sharper borders for crisp card edges */
-  --border: oklch(1 0 0 / 11%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.62 0.16 268 / 55%);
-  --chart-1: oklch(0.7 0.22 275);
-  --chart-2: oklch(0.78 0.17 200);
-  --chart-3: oklch(0.82 0.18 80);
-  --chart-4: oklch(0.72 0.23 22);
-  --chart-5: oklch(0.78 0.18 320);
-  /* Sidebar slightly darker than card for depth hierarchy */
-  --sidebar: oklch(0.135 0.012 240);
-  --sidebar-foreground: oklch(0.97 0.005 240);
-  --sidebar-primary: oklch(0.62 0.16 268);
-  --sidebar-primary-foreground: oklch(0.08 0.012 240);
-  --sidebar-accent: oklch(0.22 0.018 240);
-  --sidebar-accent-foreground: oklch(0.97 0.005 240);
-  --sidebar-border: oklch(1 0 0 / 9%);
-  --sidebar-ring: oklch(0.62 0.16 268 / 55%);
+  /* Linear-style palette. Near-black background, marginally darker
+     sidebar, very subtle borders, indigo accent (#5E6AD2 = roughly
+     oklch(0.58 0.16 275)). Flat, no tint shifts, no glow. */
+  --background: oklch(0.135 0.004 270);
+  --foreground: oklch(0.97 0.003 270);
+  --card: oklch(0.165 0.004 270);
+  --card-foreground: oklch(0.97 0.003 270);
+  --popover: oklch(0.18 0.005 270);
+  --popover-foreground: oklch(0.97 0.003 270);
+  /* Indigo accent — Linear's exact zone */
+  --primary: oklch(0.62 0.155 275);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.2 0.005 270);
+  --secondary-foreground: oklch(0.97 0.003 270);
+  --muted: oklch(0.19 0.004 270);
+  --muted-foreground: oklch(0.7 0.008 270);
+  --accent: oklch(0.22 0.006 270);
+  --accent-foreground: oklch(0.97 0.003 270);
+  --destructive: oklch(0.63 0.21 25);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 10%);
+  --ring: oklch(0.62 0.155 275 / 55%);
+  --chart-1: oklch(0.68 0.16 275);
+  --chart-2: oklch(0.74 0.14 200);
+  --chart-3: oklch(0.78 0.16 80);
+  --chart-4: oklch(0.7 0.2 25);
+  --chart-5: oklch(0.74 0.16 320);
+  /* Sidebar slightly darker than the canvas — Linear's exact trick */
+  --sidebar: oklch(0.118 0.003 270);
+  --sidebar-foreground: oklch(0.97 0.003 270);
+  --sidebar-primary: oklch(0.62 0.155 275);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.21 0.005 270);
+  --sidebar-accent-foreground: oklch(0.97 0.003 270);
+  --sidebar-border: oklch(1 0 0 / 6%);
+  --sidebar-ring: oklch(0.62 0.155 275 / 55%);
 }
 
 @layer base {
@@ -134,36 +129,15 @@
   html {
     @apply font-sans;
     color-scheme: dark;
-    /* Bigger base so the whole UI breathes. 19px lifts every rem-based size
-       proportionally — labels, paragraphs, buttons, inputs all grow. */
-    font-size: 19px;
+    /* Linear-style base. 15px keeps the UI compact and scannable while
+       still readable. All rem-based components scale proportionally. */
+    font-size: 15px;
   }
   body {
     @apply bg-background text-foreground;
-    /* Body text at full 1rem (= 19px) for comfortable reading */
-    font-size: 1rem;
-    line-height: 1.6;
+    font-size: 0.9375rem;
+    line-height: 1.55;
     letter-spacing: -0.005em;
-    background-image:
-      /* Top-left brand wash — much more muted than before, no neon */
-      radial-gradient(
-        ellipse 70% 50% at 8% -10%,
-        oklch(0.5 0.15 268 / 0.18),
-        transparent 65%
-      ),
-      /* Top-right cooler accent */
-      radial-gradient(
-        ellipse 55% 45% at 95% 5%,
-        oklch(0.55 0.12 220 / 0.10),
-        transparent 70%
-      ),
-      /* Bottom-left whisper — subtle depth, no color shift */
-      radial-gradient(
-        ellipse 60% 45% at 5% 100%,
-        oklch(0.4 0.08 268 / 0.10),
-        transparent 70%
-      );
-    background-attachment: fixed;
     font-feature-settings:
       "ss01" on,
       "cv11" on,
@@ -172,80 +146,29 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  /* Premium fine-grain noise overlay (~0.5% opacity) for organic feel */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.04;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/></svg>");
-  }
-  body > * {
-    position: relative;
-    z-index: 1;
-  }
   ::selection {
-    background-color: oklch(0.7 0.22 275 / 0.4);
+    background-color: oklch(0.62 0.155 275 / 0.4);
     color: oklch(0.99 0 0);
   }
 
-  /* Override Tailwind's text-xs / text-sm so the densest labels read
-     comfortably. Default Tailwind is 0.75rem / 0.875rem; we lift those
-     a notch for legibility. Overridden in Pro Mode below for power
-     users who want denser data tables. */
-  html[data-ui-mode="guided"] .text-xs,
-  html:not([data-ui-mode]) .text-xs {
-    font-size: 0.82rem;
-    line-height: 1.45;
-  }
-  html[data-ui-mode="guided"] .text-sm,
-  html:not([data-ui-mode]) .text-sm {
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
-  html[data-ui-mode="guided"] .text-\[10px\],
-  html:not([data-ui-mode]) .text-\[10px\] {
-    font-size: 0.72rem;
-    line-height: 1.3;
-  }
-  html[data-ui-mode="guided"] .text-\[11px\],
-  html:not([data-ui-mode]) .text-\[11px\] {
-    font-size: 0.78rem;
-    line-height: 1.4;
-  }
-  /* Crisper focus rings — premium feel */
   *:focus-visible {
-    outline: 2px solid oklch(0.7 0.22 275 / 0.65);
-    outline-offset: 2px;
-    border-radius: 4px;
+    outline: 2px solid oklch(0.62 0.155 275 / 0.6);
+    outline-offset: 1px;
+    border-radius: 3px;
   }
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(
-      180deg,
-      oklch(0.7 0.22 275 / 0.15),
-      oklch(0.7 0.22 275 / 0.25)
-    );
+    background: oklch(1 0 0 / 0.08);
     border-radius: 999px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(
-      180deg,
-      oklch(0.7 0.22 275 / 0.35),
-      oklch(0.7 0.22 275 / 0.5)
-    );
-    background-clip: padding-box;
+    background: oklch(1 0 0 / 0.16);
   }
   /* Subtle heading polish — tighter letter-spacing + heavier weight */
   h1,
@@ -338,108 +261,27 @@
     color: transparent;
   }
 
+  /* Linear-flat surfaces. Class names kept so existing components don't
+     need rewriting — the visual treatment is now flat: solid card color,
+     hairline border, no blur, no gradient, no specular highlight. */
   .glass-panel {
-    background: linear-gradient(
-      180deg,
-      oklch(1 0 0 / 0.04),
-      oklch(1 0 0 / 0.015)
-    );
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid oklch(1 0 0 / 0.07);
-    box-shadow:
-      inset 0 1px 0 oklch(1 0 0 / 0.04),
-      0 1px 0 oklch(0 0 0 / 0.4);
+    background: var(--card);
+    border: 1px solid var(--border);
   }
 
-  /* Premium surface — for primary content cards. Uses inner highlight + drop
-     shadow + subtle gradient to feel "lifted" off the dark backdrop. */
   .surface-premium {
-    background: linear-gradient(
-      180deg,
-      oklch(0.18 0.018 265 / 0.85),
-      oklch(0.14 0.014 265 / 0.85)
-    );
-    backdrop-filter: blur(16px) saturate(140%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    border: 1px solid oklch(1 0 0 / 0.07);
-    box-shadow:
-      inset 0 1px 0 oklch(1 0 0 / 0.05),
-      0 1px 2px oklch(0 0 0 / 0.5),
-      0 8px 24px -12px oklch(0 0 0 / 0.6);
+    background: var(--card);
+    border: 1px solid var(--border);
   }
 
-  /* Apple "liquid glass" — heavier blur, high saturation, layered specular
-     highlight on top edge, gradient ring border. Use for hero surfaces and
-     elevated dialogs to evoke iOS/macOS Sonoma/Sequoia material. */
   .glass-apple {
-    position: relative;
-    background:
-      linear-gradient(
-        180deg,
-        oklch(1 0 0 / 0.08) 0%,
-        oklch(1 0 0 / 0.02) 22%,
-        oklch(0.16 0.018 265 / 0.55) 100%
-      );
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border: 1px solid oklch(1 0 0 / 0.09);
-    box-shadow:
-      inset 0 1px 0 oklch(1 0 0 / 0.12),
-      inset 0 -1px 0 oklch(0 0 0 / 0.3),
-      0 1px 2px oklch(0 0 0 / 0.4),
-      0 12px 40px -12px oklch(0 0 0 / 0.55);
-  }
-  /* Specular highlight strip — thin top-edge glass reflection */
-  .glass-apple::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    background: linear-gradient(
-      180deg,
-      oklch(1 0 0 / 0.07) 0%,
-      transparent 30%
-    );
-    mask: linear-gradient(180deg, #000 0%, transparent 40%);
-    -webkit-mask: linear-gradient(180deg, #000 0%, transparent 40%);
+    background: var(--card);
+    border: 1px solid var(--border);
   }
 
-  /* Stronger glass — for the dashboard hero / modals. Adds a subtle violet
-     tint so it feels brand-aware without screaming color. */
   .glass-apple-strong {
-    position: relative;
-    background:
-      linear-gradient(
-        180deg,
-        oklch(1 0 0 / 0.1) 0%,
-        oklch(1 0 0 / 0.025) 25%,
-        oklch(0.18 0.025 275 / 0.6) 100%
-      );
-    backdrop-filter: blur(40px) saturate(200%);
-    -webkit-backdrop-filter: blur(40px) saturate(200%);
-    border: 1px solid oklch(1 0 0 / 0.11);
-    box-shadow:
-      inset 0 1px 0 oklch(1 0 0 / 0.16),
-      inset 0 -1px 0 oklch(0 0 0 / 0.35),
-      0 2px 4px oklch(0 0 0 / 0.45),
-      0 24px 60px -16px oklch(0 0 0 / 0.65),
-      0 0 0 1px oklch(0.7 0.22 275 / 0.06);
-  }
-  .glass-apple-strong::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    background: linear-gradient(
-      180deg,
-      oklch(1 0 0 / 0.09) 0%,
-      transparent 35%
-    );
-    mask: linear-gradient(180deg, #000 0%, transparent 45%);
-    -webkit-mask: linear-gradient(180deg, #000 0%, transparent 45%);
+    background: var(--card);
+    border: 1px solid var(--border);
   }
 
   /* Page-enter fade — subtle, ~250ms. Used on root content. */
