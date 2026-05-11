@@ -342,18 +342,31 @@ async function callGemini(args: CallArgs): Promise<string | null> {
     "gemini-1.5-flash-latest",
     "gemini-1.5-flash",
   ];
-  const tryList = args.model ? [args.model, ...fallback.filter((m) => m !== args.model)] : fallback;
+  const tryList = args.model
+    ? [args.model, ...fallback.filter((m) => m !== args.model)]
+    : fallback;
 
-  const c = new AbortController();
-  const t = setTimeout(() => c.abort(), args.timeoutMs);
+  // Budget the total time across all fallback attempts. Each request
+  // gets its OWN AbortController so a single failure doesn't cascade
+  // and abort subsequent ones (this was a real bug — sharing one
+  // controller meant the first 404 killed every fallback after it).
+  const deadline = Date.now() + args.timeoutMs;
   let lastError = "";
-  try {
-    for (let i = 0; i < tryList.length; i++) {
-      const model = tryList[i];
+
+  for (const model of tryList) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) {
+      lastError = lastError || "Gemini timed out before any model responded";
+      break;
+    }
+    const perRequestTimeout = Math.min(remaining, 30_000);
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), perRequestTimeout);
+    try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(args.apiKey ?? "")}`;
       const res = await fetch(url, {
         method: "POST",
-        signal: c.signal,
+        signal: ctl.signal,
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           contents: [
@@ -370,26 +383,44 @@ async function callGemini(args: CallArgs): Promise<string | null> {
       });
       if (res.ok) {
         const data = (await res.json()) as {
-          candidates?: { content?: { parts?: { text?: string }[] } }[];
+          candidates?: {
+            content?: { parts?: { text?: string }[] };
+            finishReason?: string;
+          }[];
+          promptFeedback?: { blockReason?: string };
         };
-        return (
+        const reply =
           data.candidates?.[0]?.content?.parts
             ?.map((p) => p.text ?? "")
             .join("")
-            .trim() || null
-        );
+            .trim() || null;
+        if (reply) return reply;
+        // 200 OK but empty body — usually safety filter or maxTokens=0.
+        // Try the next model rather than returning silent failure.
+        const block =
+          data.promptFeedback?.blockReason ??
+          data.candidates?.[0]?.finishReason ??
+          "empty";
+        lastError = `Gemini [${model}] returned empty (${block})`;
+        continue;
       }
-      const errBody = (await res.text().catch(() => "")).slice(0, 200);
+      const errBody = (await res.text().catch(() => "")).slice(0, 240);
       lastError = `Gemini ${res.status} [${model}]: ${errBody || res.statusText}`;
-      // 401/403/invalid-key → don't try other models, the issue is the key
+      // Key-level failures: no point trying other models with the same key
       if (res.status === 401 || res.status === 403) break;
-      if (res.status === 400 && /API_KEY_INVALID|API key not valid/i.test(errBody)) break;
-      // 404/400-not-found → try next model. Anything else, also try next.
+      if (
+        res.status === 400 &&
+        /API_KEY_INVALID|API key not valid/i.test(errBody)
+      )
+        break;
+    } catch (err) {
+      lastError = `Gemini [${model}]: ${(err as Error).message}`;
+    } finally {
+      clearTimeout(t);
     }
-    throw new Error(lastError || "All Gemini models failed");
-  } finally {
-    clearTimeout(t);
   }
+
+  throw new Error(lastError || "All Gemini models failed");
 }
 
 async function callAnthropic(args: CallArgs): Promise<string | null> {
