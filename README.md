@@ -14,7 +14,7 @@ Free-first — no paid API keys required to use core features.
 
 ### Easiest: one-line installer
 
-Detects Docker (preferred) or falls back to native install. Idempotent — re-run anytime to upgrade.
+**No git, no Node, no setup required.** The installer downloads the code, detects Docker (preferred) or installs Node-side itself, and opens the browser when the app is ready. Idempotent — re-run anytime to upgrade.
 
 **macOS / Linux:**
 ```bash
@@ -27,13 +27,17 @@ iwr -useb https://raw.githubusercontent.com/IamRamgarhia/seo/main/install.ps1 | 
 ```
 
 The installer:
-- Clones into `~/seo` (override with `SEO_INSTALL_DIR=/path`)
+- Downloads the latest code as a ZIP into `~/seo` (no `git` needed)
 - **Auto-finds a free port** if `3000` is occupied (tries 3001-3010, 8080, 4000…)
-- Starts the container and polls `/api/v1/health` until the app is actually up (typically 30-60s)
+- If Docker is installed → uses Docker (everything bundled, no other prereqs)
+- If not → checks Node ≥ 20 and tells you exactly what to install if missing
+- Polls `/api/v1/health` until the app is actually up (typically 30-60s)
 - **Auto-opens your browser** to the right URL
 - Drops a `SEO-Tool-Welcome.txt` on your Desktop with stop / start / update / troubleshoot commands
 
 To pin a specific port: `SEO_PORT=4000 curl -fsSL .../install.sh | bash`
+
+**The one thing you might need to install yourself:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) (recommended — handles everything) OR [Node.js LTS](https://nodejs.org/) (if you'd rather run native). The installer detects what you have and uses it; if neither is present, it tells you which to install.
 
 ---
 

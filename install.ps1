@@ -2,21 +2,30 @@
 #   iwr -useb https://raw.githubusercontent.com/IamRamgarhia/seo/main/install.ps1 | iex
 #
 # What it does:
-#   1. Clones (or pulls) the repo into $HOME\seo
-#   2. Auto-detects a free local port (default 3000, falls through to alternatives)
-#   3. If Docker Desktop is running -> uses Docker
-#   4. Otherwise -> falls back to native Node install via scripts/setup.ps1
+#   1. Downloads the repo as a ZIP (no git required)
+#   2. Auto-detects a free local port (default 3000)
+#   3. If Docker Desktop is running -> uses Docker (recommended, handles everything)
+#   4. Otherwise -> falls back to native Node install
 #   5. Waits for /api/v1/health to confirm the app is actually up
 #   6. Opens the browser to http://localhost:<PORT>
 #   7. Drops SEO-Tool-Welcome.txt on the user's Desktop
 #
 # Idempotent. Safe to re-run for upgrades.
 
-$ErrorActionPreference = "Stop"
-$repo = if ($env:SEO_REPO) { $env:SEO_REPO } else { "https://github.com/IamRamgarhia/seo.git" }
-$dir = if ($env:SEO_INSTALL_DIR) { $env:SEO_INSTALL_DIR } else { Join-Path $HOME "seo" }
+# IMPORTANT: don't use "Stop" globally — native tools (git, docker, npm) write
+# normal status output to stderr and PowerShell strict-mode treats it as an
+# error. Use try/catch where actual errors matter.
+$ErrorActionPreference = "Continue"
+$ProgressPreference   = "SilentlyContinue"  # speeds up Invoke-WebRequest 5-10x
+
+# ---- config ----------------------------------------------------------------
+$repoOwner   = "IamRamgarhia"
+$repoName    = "seo"
+$branch      = if ($env:SEO_BRANCH) { $env:SEO_BRANCH } else { "main" }
+$zipUrl      = "https://codeload.github.com/$repoOwner/$repoName/zip/refs/heads/$branch"
+$dir         = if ($env:SEO_INSTALL_DIR) { $env:SEO_INSTALL_DIR } else { Join-Path $HOME "seo" }
 $defaultPort = if ($env:SEO_PORT) { [int]$env:SEO_PORT } else { 3000 }
-$desktop = Join-Path $HOME "Desktop"
+$desktop     = Join-Path $HOME "Desktop"
 
 function Say($m)  { Write-Host "-> $m" -ForegroundColor Green }
 function Info($m) { Write-Host "i  $m" -ForegroundColor Cyan }
@@ -24,35 +33,59 @@ function Warn($m) { Write-Host "!  $m" -ForegroundColor Yellow }
 function Die($m)  { Write-Host "X  $m" -ForegroundColor Red; exit 1 }
 
 Say "SEO Tool installer"
+Info "Install location: $dir"
 
-if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    Die "git not found. Install git from https://git-scm.com/downloads"
+# ---- 1. download / refresh repo via ZIP (no git required) -------------------
+$tmpZip = Join-Path $env:TEMP "seo-tool-$(Get-Random).zip"
+$tmpExtract = Join-Path $env:TEMP "seo-tool-extract-$(Get-Random)"
+
+try {
+    Say "Downloading the latest code (no git required)"
+    Invoke-WebRequest -Uri $zipUrl -OutFile $tmpZip -UseBasicParsing -ErrorAction Stop
+} catch {
+    Die "Couldn't download the code. Check your internet connection. ($($_.Exception.Message))"
 }
 
-# ---- clone or pull -----------------------------------------------------------
-if (Test-Path (Join-Path $dir ".git")) {
-    Say "Existing install at $dir - pulling latest"
-    Push-Location $dir
-    try { git pull --ff-only 2>$null | Out-Null } catch { Warn "git pull failed; continuing" }
-    Pop-Location
+try {
+    Say "Extracting"
+    if (Test-Path $tmpExtract) { Remove-Item -Recurse -Force $tmpExtract }
+    Expand-Archive -Path $tmpZip -DestinationPath $tmpExtract -Force -ErrorAction Stop
+} catch {
+    Die "Couldn't extract the ZIP. ($($_.Exception.Message))"
 }
-else {
-    Say "Cloning into $dir"
-    git clone --depth 1 $repo $dir 2>$null | Out-Null
+
+# GitHub ZIPs extract as <repo>-<branch>/. Move into final location, preserving
+# any existing data.db etc. that the user already has.
+$extracted = Get-ChildItem -Path $tmpExtract -Directory | Select-Object -First 1
+if (-not $extracted) { Die "ZIP didn't contain expected folder." }
+
+if (Test-Path $dir) {
+    Say "Existing install found at $dir — refreshing in place (your data is preserved)"
+    # Copy files over, overwriting but NOT deleting things the ZIP doesn't have
+    # (so user data like data.db stays).
+    robocopy $extracted.FullName $dir /E /NFL /NDL /NJH /NJS /NC /NS /NP | Out-Null
+} else {
+    Say "Installing fresh into $dir"
+    Move-Item -Path $extracted.FullName -Destination $dir -Force
 }
+
+# Cleanup temp files
+Remove-Item -Path $tmpZip -Force -ErrorAction SilentlyContinue
+Remove-Item -Path $tmpExtract -Recurse -Force -ErrorAction SilentlyContinue
+
 Set-Location $dir
 
-# ---- find free port ---------------------------------------------------------
+# ---- 2. find a free port ----------------------------------------------------
 function Test-PortInUse($p) {
     try {
-        $conn = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction Stop
-        return ($conn -ne $null)
+        $conn = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue
+        return ($null -ne $conn)
     } catch { return $false }
 }
 
 $port = $defaultPort
 if (Test-PortInUse $port) {
-    Warn "Port $port is occupied - finding a free one"
+    Warn "Port $port is occupied — finding a free one"
     foreach ($try in @(3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010, 8080, 8081, 4000, 5000)) {
         if (-not (Test-PortInUse $try)) {
             $port = $try
@@ -62,27 +95,31 @@ if (Test-PortInUse $port) {
 }
 Say "Using port $port"
 
-# ---- Docker or native? -----------------------------------------------------
+# ---- 3. detect Docker -------------------------------------------------------
 $hasDocker = $false
 if (Get-Command docker -ErrorAction SilentlyContinue) {
-    try {
-        docker info | Out-Null
-        if ($LASTEXITCODE -eq 0) { $hasDocker = $true }
-    } catch { $hasDocker = $false }
+    docker info 2>$null 1>$null
+    if ($LASTEXITCODE -eq 0) { $hasDocker = $true }
 }
 
+# ---- 4. install path: Docker or native -------------------------------------
 $up = $false
 
 if ($hasDocker) {
-    Say "Docker detected - using Docker install"
-    try {
-        docker compose version | Out-Null
-        if ($LASTEXITCODE -ne 0) { Die "Docker is installed but 'docker compose' v2 is missing. Update Docker Desktop." }
-    } catch { Die "Docker compose v2 not found." }
+    Say "Docker detected — using Docker install (handles everything: Node, Chromium, deps)"
+
+    docker compose version 2>$null 1>$null
+    if ($LASTEXITCODE -ne 0) {
+        Die "Docker is installed but 'docker compose' v2 is missing. Update Docker Desktop from https://www.docker.com/products/docker-desktop/"
+    }
 
     $env:SEO_HOST_PORT = "$port"
-    Say "Building image (first run takes 3-5 minutes; later runs are seconds)"
+    Say "Building image (first run: 3-5 min. Re-runs: seconds.)"
     docker compose up -d --build
+
+    if ($LASTEXITCODE -ne 0) {
+        Die "Docker build failed. Check: cd '$dir'; docker compose logs"
+    }
 
     Say "Waiting for the app to come up..."
     for ($i = 0; $i -lt 60; $i++) {
@@ -96,33 +133,92 @@ if ($hasDocker) {
     Write-Host ""
 
     if (-not $up) {
-        Warn "App didn't respond after 2 minutes."
-        Warn "Check logs: cd $dir; docker compose logs -f"
-        Warn "Then open http://localhost:$port manually."
+        Warn "App didn't respond after 2 minutes. Check: cd '$dir'; docker compose logs -f"
     } else {
         Say "App is up at http://localhost:$port"
     }
 }
 else {
-    Warn "Docker not detected - falling back to native install"
-    Info "Tip: Docker Desktop makes this much easier: https://www.docker.com/products/docker-desktop/"
+    Warn "Docker not detected. Native install path."
     Write-Host ""
-    & (Join-Path $dir "scripts/setup.ps1")
+    Info "TIP: install Docker Desktop and re-run for a true one-command setup:"
+    Info "     https://www.docker.com/products/docker-desktop/"
+    Write-Host ""
 
-    Say "Starting dev server on port $port in background"
-    $pm = if (Get-Command pnpm -ErrorAction SilentlyContinue) { "pnpm" } else { "npm" }
+    # Check Node
+    if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+        Die @"
+Node.js is required for the native install.
+
+Quickest install:
+  1. Open: https://nodejs.org/  (download LTS)
+  2. Run the installer (default options)
+  3. Re-run this command in a NEW PowerShell window
+
+Or, if you have winget (Windows 10+):
+  winget install OpenJS.NodeJS.LTS
+"@
+    }
+
+    $nodeMajor = [int](node -p "process.versions.node.split('.')[0]" 2>$null)
+    if ($nodeMajor -lt 20) {
+        Die "Node $nodeMajor detected. Need Node 20+. Upgrade at https://nodejs.org/"
+    }
+    Say "Node $(node -v) ok"
+
+    # Pick package manager — enable corepack so pnpm/yarn work without separate install
+    $pm = $null
+    if (Get-Command pnpm -ErrorAction SilentlyContinue) {
+        $pm = "pnpm"
+    } else {
+        # Try corepack — ships with Node 16.10+, gives us pnpm without npm install -g
+        if (Get-Command corepack -ErrorAction SilentlyContinue) {
+            Say "Enabling pnpm via corepack"
+            corepack enable 2>$null 1>$null
+            corepack prepare pnpm@latest --activate 2>$null 1>$null
+            if (Get-Command pnpm -ErrorAction SilentlyContinue) {
+                $pm = "pnpm"
+            }
+        }
+        if (-not $pm) {
+            Warn "pnpm not available; falling back to npm (slower)"
+            $pm = "npm"
+        }
+    }
+    Say "Using $pm"
+
+    Say "Installing dependencies (1-3 minutes the first time)"
+    & $pm install
+    if ($LASTEXITCODE -ne 0) { Die "Dependency install failed." }
+
+    Say "Downloading Playwright Chromium (~170 MB, one-time)"
+    & $pm exec playwright install chromium
+    if ($LASTEXITCODE -ne 0) { Warn "Playwright install failed; rank-checking tools may not work" }
+
+    Say "Applying database migrations"
+    node scripts/migrate.cjs
+    if ($LASTEXITCODE -ne 0) { Die "Migrations failed." }
+
+    if (-not (Test-Path ".env.local")) {
+        if (Test-Path ".env.example") {
+            Copy-Item ".env.example" ".env.local"
+        }
+    }
+
+    Say "Starting server on port $port (background)"
     $logFile = Join-Path $dir "dev-server.log"
+    $errFile = Join-Path $dir "dev-server.err.log"
     $env:PORT = "$port"
     $proc = Start-Process -FilePath $pm `
         -ArgumentList @("run", "dev") `
         -WorkingDirectory $dir `
         -RedirectStandardOutput $logFile `
-        -RedirectStandardError (Join-Path $dir "dev-server.err.log") `
+        -RedirectStandardError $errFile `
         -PassThru -WindowStyle Hidden
     $proc.Id | Out-File -FilePath (Join-Path $dir ".dev-server.pid") -Encoding ascii
 
-    Say "Waiting for the app to come up... (first build takes 30-60s)"
-    for ($i = 0; $i -lt 60; $i++) {
+    Say "Waiting for the app to come up... (30-90s for first build)"
+    for ($i = 0; $i -lt 90; $i++) {
         try {
             $r = Invoke-WebRequest -Uri "http://localhost:$port/api/v1/health" -UseBasicParsing -TimeoutSec 2 -ErrorAction Stop
             if ($r.StatusCode -eq 200) { $up = $true; break }
@@ -132,28 +228,28 @@ else {
     }
     Write-Host ""
     if (-not $up) {
-        Warn "App didn't respond yet. Check $logFile for details."
+        Warn "App didn't respond yet. Check '$logFile' for details."
     } else {
         Say "App is up at http://localhost:$port"
     }
 }
 
-# ---- write desktop welcome file --------------------------------------------
+# ---- 5. write desktop welcome file -----------------------------------------
 $welcome = Join-Path $desktop "SEO-Tool-Welcome.txt"
 if (Test-Path $desktop) {
     $controls = if ($hasDocker) {
 @"
-Stop:    cd $dir; docker compose down
-Start:   cd $dir; `$env:SEO_HOST_PORT='$port'; docker compose up -d
-Logs:    cd $dir; docker compose logs -f
-Update:  cd $dir; git pull; `$env:SEO_HOST_PORT='$port'; docker compose up -d --build
+Stop:    cd '$dir'; docker compose down
+Start:   cd '$dir'; `$env:SEO_HOST_PORT='$port'; docker compose up -d
+Logs:    cd '$dir'; docker compose logs -f
+Update:  Re-run the installer command
 "@
     } else {
 @"
-Stop:    Get-Process -Id (Get-Content $dir\.dev-server.pid) | Stop-Process
-Start:   cd $dir; `$env:PORT='$port'; pnpm dev
-Logs:    Get-Content $dir\dev-server.log -Wait -Tail 100
-Update:  cd $dir; git pull; pnpm install
+Stop:    Get-Process -Id (Get-Content '$dir\.dev-server.pid') | Stop-Process
+Start:   cd '$dir'; `$env:PORT='$port'; pnpm dev
+Logs:    Get-Content '$dir\dev-server.log' -Wait -Tail 100
+Update:  Re-run the installer command
 "@
     }
 
@@ -192,12 +288,13 @@ README:   $dir\README.md
 ======================================================
 "@
     $content | Out-File -FilePath $welcome -Encoding utf8
-    Say "Created $welcome"
+    Say "Created Desktop guide: $welcome"
 }
 
-# ---- auto-open browser ------------------------------------------------------
+# ---- 6. auto-open browser ---------------------------------------------------
 $url = "http://localhost:$port"
 if ($up) {
+    Say "Opening browser"
     Start-Process $url
 }
 
