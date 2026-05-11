@@ -139,4 +139,7 @@ export const TOOL_LABELS: Record<string, string> = {
   "content-score": "Content score",
   hreflang: "Hreflang validator",
   "link-checker": "Link checker",
+  "geo-score": "GEO composite score",
+  sxo: "SXO audit",
+  "attack-briefs": "Content attack briefs",
 };

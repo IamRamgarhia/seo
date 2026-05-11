@@ -691,6 +691,31 @@ const tools = [
       "For sites without a CMS write-bridge (Next.js / custom code), open a structured PR with a checklist of SEO fixes for your developer to implement.",
     accent: "cyan",
   },
+  // GEO + SXO + attack briefs (from open-source SEO-skill repos)
+  {
+    href: "/tools/geo-score",
+    icon: Sparkles,
+    title: "GEO composite score ⭐",
+    description:
+      "Weighted scorecard for AI search visibility — citability, brand authority, content E-E-A-T, technical, schema, platform tactics. Forces you to fix the weakest leg first.",
+    accent: "violet",
+  },
+  {
+    href: "/tools/sxo",
+    icon: Eye,
+    title: "SXO — Search Experience Optimization",
+    description:
+      "Audits user-experience signals Google now weights heavily: page promise, time-to-answer, next step, friction, Core Web Vitals. Persona-driven recommendations.",
+    accent: "cyan",
+  },
+  {
+    href: "/tools/attack-briefs",
+    icon: Sparkles,
+    title: "Content Attack Briefs",
+    description:
+      "Up to 5 keyword-gap briefs per run. Vulnerability scoring + required E-E-A-T + schema + AIO passage hints + definition of done.",
+    accent: "rose",
+  },
 ];
 
 const accentMap: Record<string, string> = {

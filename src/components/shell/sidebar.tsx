@@ -77,6 +77,8 @@ const groups: { title: string; items: Section[] }[] = [
     items: [
       { href: "/audits", label: "Audits", icon: ClipboardList },
       { href: "/cwv", label: "Core Web Vitals", icon: Gauge },
+      { href: "/cwv/archive", label: "CWV archive", icon: Gauge },
+      { href: "/serp-scans", label: "SERP scans archive", icon: Globe },
       { href: "/landing-perf", label: "Landing-page perf", icon: Gauge },
       { href: "/keywords", label: "Keywords", icon: Search },
       { href: "/cannibalization", label: "Cannibalization", icon: GitMerge },
