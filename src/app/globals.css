@@ -154,12 +154,19 @@
     color: oklch(0.99 0 0);
   }
 
-  /* Lift the smallest sizes so labels and helper text remain readable
-     at the larger base. Pro mode keeps things tight unchanged. */
-  html:not([data-ui-mode="pro"]) .text-\[10px\] { font-size: 0.74rem; line-height: 1.4; }
-  html:not([data-ui-mode="pro"]) .text-\[11px\] { font-size: 0.78rem; line-height: 1.45; }
-  html:not([data-ui-mode="pro"]) .text-\[12px\] { font-size: 0.83rem; line-height: 1.5; }
-  html:not([data-ui-mode="pro"]) .text-\[13px\] { font-size: 0.9rem; line-height: 1.55; }
+  /* Guided-mode typographic scale — collapse the dozen tiny variants
+     scattered through legacy components into a tight 3-step hierarchy:
+       body    1rem    (15px) — paragraphs, primary UI
+       label   0.93rem (14px) — labels, captions, list secondary text
+       caption 0.87rem (13px) — only the rarest helper text
+     Pro mode bypasses these to keep its denser look. */
+  html:not([data-ui-mode="pro"]) .text-xs { font-size: 0.87rem; line-height: 1.5; }
+  html:not([data-ui-mode="pro"]) .text-sm { font-size: 0.96rem; line-height: 1.55; }
+  html:not([data-ui-mode="pro"]) .text-\[10px\] { font-size: 0.87rem; line-height: 1.4; }
+  html:not([data-ui-mode="pro"]) .text-\[11px\] { font-size: 0.87rem; line-height: 1.45; }
+  html:not([data-ui-mode="pro"]) .text-\[12px\] { font-size: 0.93rem; line-height: 1.5; }
+  html:not([data-ui-mode="pro"]) .text-\[13px\] { font-size: 0.93rem; line-height: 1.55; }
+  html:not([data-ui-mode="pro"]) .text-\[14px\] { font-size: 1rem; line-height: 1.55; }
 
   *:focus-visible {
     outline: 2px solid oklch(0.62 0.155 275 / 0.6);
