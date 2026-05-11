@@ -100,6 +100,30 @@ export function ProfileMenu() {
               Check for updates
             </Link>
             <Link
+              href="/settings/health"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+            >
+              <Settings className="size-3.5 text-muted-foreground" />
+              System health
+            </Link>
+            <Link
+              href="/settings/errors"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+            >
+              <Settings className="size-3.5 text-muted-foreground" />
+              Error log
+            </Link>
+            <Link
+              href="/settings/backup"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+            >
+              <Settings className="size-3.5 text-muted-foreground" />
+              Backup &amp; restore
+            </Link>
+            <Link
               href="/seo-chat/capabilities"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"

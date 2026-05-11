@@ -1590,3 +1590,72 @@ export const annotations = sqliteTable("annotations", {
 });
 export type Annotation = typeof annotations.$inferSelect;
 export type NewAnnotation = typeof annotations.$inferInsert;
+
+/**
+ * Centralized error log. Captures every server-side exception (server
+ * actions, API routes, background workers) and every client-side error
+ * (window.onerror, unhandledrejection) so the user has one place to look
+ * when something's flaky and a copy-pasteable bundle for GitHub issues.
+ *
+ * Capped at the last 1,000 rows by a trim that runs on every insert.
+ */
+export const systemErrors = sqliteTable("system_errors", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  /** "server" (route/action), "client" (browser), "worker" (daily agent etc). */
+  source: text("source", { enum: ["server", "client", "worker"] }).notNull(),
+  /** Where it came from — route path, action name, worker step. */
+  context: text("context").notNull(),
+  /** First line of the error message. */
+  message: text("message").notNull(),
+  /** Optional full stack trace. */
+  stack: text("stack"),
+  /** Optional URL the user was on. */
+  url: text("url"),
+  /** Optional userAgent — only set for client-side errors. */
+  userAgent: text("user_agent"),
+  /** Number of times this same (source, context, message) seen. */
+  occurrences: integer("occurrences").notNull().default(1),
+  firstSeenAt: integer("first_seen_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  lastSeenAt: integer("last_seen_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  resolved: integer("resolved", { mode: "boolean" }).notNull().default(false),
+});
+export type SystemError = typeof systemErrors.$inferSelect;
+export type NewSystemError = typeof systemErrors.$inferInsert;
+
+/**
+ * Manual report data — work the user did that isn't auto-trackable.
+ * Pasted as plain text in /report-data, AI structures it into kind +
+ * title + url + details. Surfaces in monthly reports as "Work done."
+ */
+export const manualReportData = sqliteTable("manual_report_data", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clientId: integer("client_id")
+    .notNull()
+    .references(() => clients.id, { onDelete: "cascade" }),
+  /** Categorisation. */
+  kind: text("kind", {
+    enum: [
+      "backlink",
+      "outreach",
+      "comment",
+      "social_post",
+      "review",
+      "milestone",
+      "note",
+    ],
+  }).notNull(),
+  title: text("title").notNull(),
+  url: text("url"),
+  details: text("details", { mode: "json" }).$type<Record<string, unknown>>(),
+  happenedAt: integer("happened_at", { mode: "timestamp" }),
+  rawText: text("raw_text"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+export type ManualReportData = typeof manualReportData.$inferSelect;
+export type NewManualReportData = typeof manualReportData.$inferInsert;
