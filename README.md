@@ -1,17 +1,17 @@
 <div align="center">
 
-# 🚀 Free Self-Hosted SEO Platform
+# Free SEO Tool — Self-Hosted, Open-Source Alternative to Ahrefs &amp; Semrush
 
-### The open-source alternative to Ahrefs, Semrush, and Surfer — combined into one tool, running on your own machine.
+### 🚀 150+ SEO tools in one self-hostable app. Audits, rank tracking, keyword research, AI content, backlinks, local SEO, AI-search visibility, paid-ads funnels, white-label reports.
 
-**Save ₹2-5 lakh/year ($3,000-$6,000) on SEO subscriptions. Own your data. No paid API keys required to start.**
+**Replace ₹25,000–₹65,000/month ($300–$770) of SEO subscriptions with one free tool. Own your data. No paid API keys required to start.**
 
 [![License](https://img.shields.io/badge/license-PolyForm_NC_1.0.0-amber.svg)](LICENSE)
-[![Stack](https://img.shields.io/badge/Next.js_16-React_19-cyan.svg)](#tech-stack)
-[![Self-Hosted](https://img.shields.io/badge/self_hosted-✓-green.svg)](#install-in-one-command)
+[![Stack](https://img.shields.io/badge/Next.js_16-React_19-cyan.svg)](#-tech-stack)
+[![Self-Hosted](https://img.shields.io/badge/self_hosted-✓-green.svg)](#-install-in-one-command)
 [![Star us](https://img.shields.io/github/stars/IamRamgarhia/seo?style=social)](https://github.com/IamRamgarhia/seo)
 
-[**⚡ Install in one command**](#install-in-one-command) · [**💰 How much you save**](#-how-much-you-save) · [**📦 Full feature list**](#-full-feature-list) · [**❓ FAQ**](#-faq) · [**📜 License**](#-license)
+[**⚡ Install**](#-install-in-one-command) · [**💰 How much you save**](#-how-much-you-save) · [**📦 Full feature list**](#-full-feature-list) · [**🔮 Coming soon**](#-coming-soon) · [**🆘 Troubleshooting**](TROUBLESHOOTING.md) · [**❓ FAQ**](#-faq) · [**📜 License**](#-license)
 
 </div>
 
@@ -256,6 +256,29 @@ Detected automatically via Wappalyzer + HTTP signatures. Recommendations adapt p
 ✅ Backup = copy the install folder  
 ✅ Works fully offline with Ollama for AI  
 ✅ Default-bind to localhost — LAN exposure is opt-in via `APP_PASSWORD`
+
+---
+
+## 🔮 Coming soon
+
+Actively in development for the next 3-6 months. Want one of these sooner? Open an issue and tell us — community demand bumps it up the queue.
+
+| Coming | What it does |
+|---|---|
+| 🛍️ **Shopify app** | One-click installer in Shopify App Store. Read/write product + collection meta, manage redirects, edit theme files, push JSON-LD schema. |
+| 🌐 **Browser extension** | Chrome/Edge companion. Capture data from any external SEO tool (GSC, GA4, PageSpeed UI) and pipe straight into your tool. "Send to my SEO tool" button on any page. |
+| 📱 **Mobile PWA** | Full progressive web app — installable on iOS/Android home screen, push notifications, offline rank reading, "tap to check ranking" on the go. |
+| 🔗 **CRM integrations** (HubSpot, Pipedrive, Salesforce, Zoho) | Revenue-per-page reporting. Map organic traffic → leads → deals closed → revenue. Stakeholder reports finally show ROI in dollars, not just rankings. |
+| 🏗️ **Programmatic SEO toolkit** | Generate hundreds of location/feature/comparison pages from a CSV + template. The thing SaaS teams pay $5k/mo for. |
+| 🌍 **International / hreflang manager** | Multi-country, multi-language site management. Hreflang validator + generator + audit. |
+| 🤖 **GitHub PR generation** | For developer clients — tool finds an issue, generates the fix as a PR against their repo, you review + merge. |
+| 👥 **Team management + capacity planning** | Multi-user workspaces with roles. See who's overbooked. Auto-assign tasks by workload. |
+| 📊 **Stakeholder report variants** | Same data, different audiences. CEO sees revenue and ROI. CMO sees traffic and pipeline. CTO sees technical health. |
+| 🎙️ **Voice-to-task + meeting-notes integration** | Record a client call, tool transcribes + extracts action items into tasks. Fireflies / Otter integration. |
+| 🔌 **Plugin marketplace** | Community-built extensions. Ship your own audit rule, niche template, report block. |
+| 🧠 **Custom dashboards + chart annotations** | Drag-and-drop dashboards per client. Annotate spikes with notes (algorithm update, big campaign, etc). |
+
+See [CLAUDE.md Part 12](CLAUDE.md) for the full v2 + v3 roadmap (~30 items). Community feedback shapes prioritization — file an issue with the 🔮 label.
 
 ---
 

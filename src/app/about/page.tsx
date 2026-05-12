@@ -207,9 +207,10 @@ export default function AboutPage() {
       <p className="rounded-xl border border-rose-500/20 bg-rose-500/[0.04] p-4 text-xs text-rose-200">
         <Heart className="mr-1 inline size-3.5" />
         If this tool saves you the cost of an Ahrefs / Semrush
-        subscription, a small UPI tip or coffee keeps the lights on.
-        The <strong>Support the project</strong> button above opens the
-        UPI ID + Buy Me A Coffee options.
+        subscription, a tip keeps the lights on. The{" "}
+        <strong>Support the project</strong> button above opens UPI
+        (with QR + ₹100/300/500/1000 presets) for India and PayPal
+        for everyone else.
       </p>
 
       {/* Hire DiceCodes — services pitch. Distinct from the LICENSE

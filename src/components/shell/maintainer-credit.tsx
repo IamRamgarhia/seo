@@ -22,7 +22,8 @@ const PRESET_AMOUNTS = [100, 300, 500, 1000] as const;
  *   - inline: a single line, links to GitHub + opens support dialog
  *   - block:  a 3-line block with tagline, suitable for /about
  *
- * The Support button opens a modal with UPI (INR) + Buy Me A Coffee.
+ * The Support button opens a modal with UPI (INR, with QR + presets)
+ * + PayPal (international, cards / bank / balance).
  */
 export function MaintainerCredit({
   variant = "inline",
