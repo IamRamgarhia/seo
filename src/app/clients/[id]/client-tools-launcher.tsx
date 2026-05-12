@@ -33,7 +33,7 @@ import {
  * total rather than the full 100-tool index.
  */
 
-type ClientToolLink = {
+export type ClientToolLink = {
   href: string;
   title: string;
   icon: typeof Activity;
@@ -42,11 +42,26 @@ type ClientToolLink = {
   needs?: "gsc" | "gbp" | "ga4" | "wp-bridge" | null;
 };
 
-type ClientToolGroup = {
+export type ClientToolGroup = {
   label: string;
   blurb: string;
   tools: ClientToolLink[];
 };
+
+export type ClientToolsClient = {
+  id: number;
+  url: string;
+  gscProperty: string | null;
+  gbpUrl: string | null;
+  ga4PropertyId: string | null;
+  wpEndpoint: string | null;
+};
+
+export function buildClientToolGroups(
+  client: ClientToolsClient,
+): ClientToolGroup[] {
+  return buildGroups(client);
+}
 
 function buildGroups(client: {
   id: number;
@@ -357,12 +372,16 @@ function buildGroups(client: {
   ];
 }
 
-const NEEDS_HINTS: Record<NonNullable<ClientToolLink["needs"]>, string> = {
+export const CLIENT_TOOL_NEEDS_HINTS: Record<
+  NonNullable<ClientToolLink["needs"]>,
+  string
+> = {
   gsc: "Connect Google Search Console first",
   gbp: "Add the client's GBP URL on this page first",
   ga4: "Connect Google Analytics 4 first",
   "wp-bridge": "Install the WordPress SEO Tool Bridge plugin first",
 };
+const NEEDS_HINTS = CLIENT_TOOL_NEEDS_HINTS;
 
 export function ClientToolsLauncher({
   client,

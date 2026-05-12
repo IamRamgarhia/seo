@@ -57,7 +57,7 @@ import {
   reportArchives,
   clientMetricSnapshots,
 } from "@/db/schema";
-import { ClientToolsLauncher } from "./client-tools-launcher";
+import { ClientToolsSidebar } from "./client-tools-sidebar";
 import { DeleteClientButton } from "./delete-client-button";
 import { DailyAutomationCard } from "./daily-automation-card";
 import { inArray } from "drizzle-orm";
@@ -249,13 +249,36 @@ export default async function ClientDetailPage({
     .limit(1);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-[1400px] space-y-6">
       {brandingNeeded && (
         <BrandingPreflightBanner
           clientId={clientId}
           template={brandingTemplate}
         />
       )}
+
+      {/*
+        Two-column layout on desktop:
+          left   — sticky tools sidebar (per-client, all tools pre-wired)
+          right  — the main client content (hero, stats, automations,
+                   integrations, recent activity, etc.)
+
+        Below md the sidebar collapses to a button + sheet so the main
+        content gets full width.
+      */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
+        <ClientToolsSidebar
+          client={{
+            id: client.id,
+            url: client.url,
+            gscProperty: client.gscProperty,
+            gbpUrl: client.gbpUrl,
+            ga4PropertyId: client.ga4PropertyId,
+            wpEndpoint: client.wpEndpoint,
+          }}
+        />
+
+        <div className="min-w-0 flex-1 space-y-6">
       {/* HERO — shadcn-admin style: flat card, real favicon, no orbs */}
       <section className="rounded-xl border border-border bg-card p-6 shadow">
         <nav className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -508,18 +531,6 @@ export default async function ClientDetailPage({
 
       {/* DAILY AUTOMATION ENTRY — schedules + queue, per client */}
       <DailyAutomationCard clientId={client.id} />
-
-      {/* TOOLS LAUNCHER — everything pre-wired with this client's URL / id / OAuth */}
-      <ClientToolsLauncher
-        client={{
-          id: client.id,
-          url: client.url,
-          gscProperty: client.gscProperty,
-          gbpUrl: client.gbpUrl,
-          ga4PropertyId: client.ga4PropertyId,
-          wpEndpoint: client.wpEndpoint,
-        }}
-      />
 
       {/* GOOGLE INTEGRATION */}
       <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
@@ -858,6 +869,8 @@ export default async function ClientDetailPage({
           />
         </div>
       </section>
+        </div>
+      </div>
     </div>
   );
 }
