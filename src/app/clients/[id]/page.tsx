@@ -59,6 +59,7 @@ import {
 } from "@/db/schema";
 import { ClientToolsLauncher } from "./client-tools-launcher";
 import { DeleteClientButton } from "./delete-client-button";
+import { DailyAutomationCard } from "./daily-automation-card";
 import { inArray } from "drizzle-orm";
 import { headers } from "next/headers";
 import { Suspense } from "react";
@@ -504,6 +505,9 @@ export default async function ClientDetailPage({
           hint={keywordCount === 0 ? "Not tracking any yet" : "In rotation"}
         />
       </div>
+
+      {/* DAILY AUTOMATION ENTRY — schedules + queue, per client */}
+      <DailyAutomationCard clientId={client.id} />
 
       {/* TOOLS LAUNCHER — everything pre-wired with this client's URL / id / OAuth */}
       <ClientToolsLauncher

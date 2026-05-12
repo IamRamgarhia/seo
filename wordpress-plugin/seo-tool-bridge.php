@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('STB_VERSION', '0.1.0');
+define('STB_VERSION', '0.2.0');
 define('STB_OPTION_KEY', 'stb_connection_key');
 define('STB_OPTION_REVISIONS', 'stb_revisions');
 define('STB_REST_NAMESPACE', 'seo-tool/v1');
@@ -204,6 +204,16 @@ add_action('rest_api_init', function () {
         'callback' => 'stb_rest_undo',
         'permission_callback' => 'stb_check_key',
         'args' => ['rev_id' => ['validate_callback' => 'is_numeric']],
+    ]);
+
+    // v0.2.0+ — create a post. Used by daily automation when a blog_draft
+    // queue item is approved + published. Status defaults to "draft" so
+    // the WP editor gets a final pass before going live; schedules with
+    // auto_publish=true pass "publish" to skip that.
+    register_rest_route(STB_REST_NAMESPACE, '/posts', [
+        'methods'  => 'POST',
+        'callback' => 'stb_rest_create_post',
+        'permission_callback' => 'stb_check_key',
     ]);
 });
 
@@ -495,4 +505,66 @@ function stb_rest_find_by_url(WP_REST_Request $req): WP_REST_Response
     }
 
     return new WP_REST_Response(['error' => 'not found'], 404);
+}
+
+/**
+ * Create a new WordPress post. Used by the SEO Tool's daily automation
+ * when a blog_draft is approved + published.
+ *
+ * Body (JSON):
+ *   - title           (string, required)
+ *   - content         (string, required) — raw HTML
+ *   - excerpt         (string, optional)
+ *   - status          ("draft" | "publish", default "draft")
+ *   - schemaJsonLd    (object | array | null) — saved as _stb_schema_jsonld
+ *   - metaDescription (string, optional) — saved via stb_set_meta_description
+ */
+function stb_rest_create_post(WP_REST_Request $req): WP_REST_Response
+{
+    $body = $req->get_json_params();
+    $title = isset($body['title']) ? sanitize_text_field((string)$body['title']) : '';
+    $content = isset($body['content']) ? (string)$body['content'] : '';
+    $excerpt = isset($body['excerpt']) ? sanitize_textarea_field((string)$body['excerpt']) : '';
+    $status = isset($body['status']) && in_array($body['status'], ['draft', 'publish'], true)
+        ? $body['status']
+        : 'draft';
+
+    if ($title === '' || $content === '') {
+        return new WP_REST_Response(
+            ['ok' => false, 'error' => 'title and content are required'],
+            400,
+        );
+    }
+
+    $post_id = wp_insert_post([
+        'post_title'   => $title,
+        'post_content' => wp_kses_post($content),
+        'post_excerpt' => $excerpt,
+        'post_status'  => $status,
+        'post_type'    => 'post',
+    ], true);
+
+    if (is_wp_error($post_id)) {
+        return new WP_REST_Response(
+            ['ok' => false, 'error' => $post_id->get_error_message()],
+            500,
+        );
+    }
+
+    if (!empty($body['metaDescription'])) {
+        stb_set_meta_description($post_id, (string)$body['metaDescription']);
+    }
+    if (!empty($body['schemaJsonLd'])) {
+        update_post_meta(
+            $post_id,
+            '_stb_schema_jsonld',
+            wp_json_encode($body['schemaJsonLd']),
+        );
+    }
+
+    return new WP_REST_Response([
+        'ok'  => true,
+        'id'  => $post_id,
+        'url' => get_permalink($post_id),
+    ]);
 }
