@@ -23,6 +23,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { ScoreGauge } from "@/components/ui/score-gauge";
 import { AreaChart } from "@/components/ui/area-chart";
+import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { PortfolioTrafficPanel } from "./portfolio-traffic-panel";
 import { PortfolioQuickWinsPanel } from "./portfolio-quick-wins-panel";
@@ -302,23 +303,23 @@ export default async function DashboardPage() {
 
       {/* MORNING BRIEFING — what changed in last 24h across portfolio */}
       {!isFresh && (
-        <Suspense fallback={null}>
+        <Suspense fallback={<DashboardPanelSkeleton lines={4} />}>
           <MorningBriefing />
         </Suspense>
       )}
 
       {/* AGENCY WEEK IN REVIEW — aggregate activity across all clients */}
       {!isFresh && (
-        <Suspense fallback={null}>
+        <Suspense fallback={<DashboardPanelSkeleton lines={3} />}>
           <AgencyWeekInReview />
         </Suspense>
       )}
 
       {/* REAL GOOGLE DATA — only renders if any client has Google linked */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<DashboardPanelSkeleton lines={5} />}>
         <PortfolioTrafficPanel />
       </Suspense>
-      <Suspense fallback={null}>
+      <Suspense fallback={<DashboardPanelSkeleton lines={3} />}>
         <PortfolioQuickWinsPanel />
       </Suspense>
 
@@ -613,5 +614,16 @@ function FeatureHighlights() {
         </p>
       </div>
     </aside>
+  );
+}
+
+function DashboardPanelSkeleton({ lines = 3 }: { lines?: number }) {
+  return (
+    <section className="rounded-2xl border border-border bg-card/40 p-5">
+      <Skeleton.Line className="w-40" />
+      <div className="mt-4">
+        <Skeleton.Lines count={lines} />
+      </div>
+    </section>
   );
 }

@@ -28,6 +28,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { SiteFavicon } from "@/components/ui/site-favicon";
 import { StatCard } from "@/components/ui/stat-card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BrandingPreflightBanner } from "./branding-preflight-banner";
 import {
   applyNicheTemplates,
@@ -108,9 +109,9 @@ function PanelSkeleton({ title }: { title: string }) {
         <div className="text-sm text-muted-foreground">{title}</div>
       </header>
       <div className="space-y-2 p-5">
-        <div className="h-4 w-3/4 animate-pulse rounded bg-white/5" />
-        <div className="h-4 w-1/2 animate-pulse rounded bg-white/5" />
-        <div className="h-4 w-2/3 animate-pulse rounded bg-white/5" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-4 w-1/2" />
+        <Skeleton className="h-4 w-2/3" />
       </div>
     </section>
   );
