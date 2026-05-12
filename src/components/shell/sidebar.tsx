@@ -39,6 +39,8 @@ import {
   Flame,
   GitMerge,
   Magnet,
+  Megaphone,
+  Target,
   Video,
   Globe,
   ChevronDown,
@@ -122,6 +124,24 @@ const groups: NavGroup[] = [
       { href: "/cannibalization", label: "Cannibalization", icon: GitMerge },
       { href: "/cwv", label: "Core Web Vitals", icon: Gauge },
       { href: "/serp-scans", label: "SERP scans archive", icon: Globe },
+    ],
+  },
+  {
+    id: "paid-ads",
+    title: "Paid ads",
+    defaultOpen: true,
+    items: [
+      // The ⭐ marks this as the newest / most-recommended entry —
+      // matches the same treatment on /tools and the per-client launcher.
+      {
+        href: "/tools/ads-funnel",
+        label: "Ad Funnel Architect ⭐",
+        icon: Megaphone,
+      },
+      // Forward-looking placeholders — the Meta + Google Ads + LinkedIn
+      // standalone dashboards aren't built yet, but the Ad Funnel
+      // generator covers their copy + strategy needs in the meantime.
+      { href: "/tools/branded-split", label: "Branded vs non-branded", icon: Target },
     ],
   },
   {
