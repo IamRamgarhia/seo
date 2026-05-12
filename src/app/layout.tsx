@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import { Sidebar } from "@/components/shell/sidebar";
 import { TopBar } from "@/components/shell/top-bar";
-import { EmbedModeToggle } from "@/components/shell/embed-mode";
 import { AIAssistant } from "@/components/shell/ai-assistant";
 import { PowerWidget } from "@/components/shell/power-widget";
 import { FirstRunPrompt } from "@/components/shell/first-run-prompt";
@@ -68,44 +68,47 @@ export default async function RootLayout({
 
   const uiMode = await getUiMode();
 
+  // Server-side embed detection. The middleware sees ?embed=1 in the
+  // request URL and forwards it as an x-embed header (see
+  // src/middleware.ts). When set, we render a minimal shell — no
+  // sidebar, no top-bar, no floating widgets — so the per-client tool
+  // drawer's iframe shows ONLY the tool content. No client script, no
+  // flash, no late hydration.
+  const isEmbed = (await headers()).get("x-embed") === "1";
+
   return (
     <html
       lang="en"
       suppressHydrationWarning
       data-ui-mode={uiMode}
+      data-embed={isEmbed ? "1" : undefined}
       className={`dark ${sansFont.variable} ${monoFont.variable} h-full antialiased`}
     >
-      <head>
-        {/*
-          Synchronous embed-mode detection. Runs before React hydrates so
-          the chrome-hiding CSS rule kicks in on the very first paint —
-          no flash of full-shell content inside iframes that load with
-          ?embed=1 (used by the per-client tool drawer).
-        */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{if(new URL(location.href).searchParams.get('embed')==='1')document.documentElement.dataset.embed='1';}catch(e){}`,
-          }}
-        />
-      </head>
       <body className="h-screen overflow-hidden bg-background text-foreground">
-        <EmbedModeToggle />
         <ConfirmDialogProvider>
           <QuickAddClientProvider>
-            <div className="flex h-full">
-              <Sidebar unreadByHref={unreadByHref} />
-              <div className="flex h-full min-w-0 flex-1 flex-col">
-                <TopBar unreadByHref={unreadByHref} />
-                <main className="flex-1 overflow-y-auto p-4 md:p-6">
-                  {children}
-                </main>
-              </div>
-            </div>
-            <div data-shell-chrome="ambient">
-              <AIAssistant />
-              <PowerWidget />
-              <FirstRunPrompt />
-            </div>
+            {isEmbed ? (
+              // Minimal embedded shell — just the page content. The
+              // host (drawer) owns the chrome.
+              <main className="h-full overflow-y-auto p-4 md:p-6">
+                {children}
+              </main>
+            ) : (
+              <>
+                <div className="flex h-full">
+                  <Sidebar unreadByHref={unreadByHref} />
+                  <div className="flex h-full min-w-0 flex-1 flex-col">
+                    <TopBar unreadByHref={unreadByHref} />
+                    <main className="flex-1 overflow-y-auto p-4 md:p-6">
+                      {children}
+                    </main>
+                  </div>
+                </div>
+                <AIAssistant />
+                <PowerWidget />
+                <FirstRunPrompt />
+              </>
+            )}
             <Toaster />
             <ServiceWorkerRegister />
             <ClientErrorCapture />
