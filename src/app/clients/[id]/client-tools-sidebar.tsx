@@ -63,7 +63,7 @@ export function ClientToolsSidebar({
   // Inner list — re-used in both desktop sticky panel and mobile sheet
   const list = (
     <>
-      <div className="sticky top-0 z-10 -mx-3 -mt-3 mb-3 border-b border-white/[0.04] bg-card/95 px-3 py-3 backdrop-blur">
+      <div className="sticky top-0 z-10 -mx-2.5 -mt-2.5 mb-2 border-b border-white/[0.04] bg-card/95 px-2.5 py-2 backdrop-blur">
         <div className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -94,7 +94,7 @@ export function ClientToolsSidebar({
         )}
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-2">
         {filteredGroups.length === 0 && (
           <p className="px-1 py-4 text-center text-xs text-muted-foreground">
             No tools match &ldquo;{query}&rdquo;.
@@ -134,7 +134,7 @@ export function ClientToolsSidebar({
                         <Link
                           href={t.href}
                           onClick={() => setMobileOpen(false)}
-                          className="group flex items-start gap-2.5 rounded-md px-2 py-2 transition-colors hover:bg-white/[0.05]"
+                          className="group flex items-start gap-2 rounded-md px-1.5 py-1.5 transition-colors hover:bg-white/[0.05]"
                         >
                           <span
                             className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-md ring-1 ring-inset ${groupAccent.iconBg}`}
@@ -225,23 +225,18 @@ export function ClientToolsSidebar({
 
       {/* Desktop: sticky secondary sidebar */}
       <aside className="sticky top-4 hidden h-[calc(100vh-2rem)] w-[280px] shrink-0 overflow-hidden rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-md md:flex md:flex-col">
-        <header className="border-b border-white/[0.06] bg-gradient-to-br from-violet-500/[0.06] to-cyan-500/[0.04] px-4 py-3">
-          <div className="flex items-center gap-2">
-            <span className="grid size-7 place-items-center rounded-md bg-violet-500/15 ring-1 ring-inset ring-violet-500/30">
-              <Wrench className="size-3.5 text-violet-300" />
-            </span>
-            <div className="min-w-0">
-              <h3 className="text-sm font-semibold leading-tight">
-                Tools for this client
-              </h3>
-              <p className="mt-0.5 text-[10px] leading-tight text-muted-foreground">
-                {toolCount} tools · pre-wired with this client&apos;s URL +
-                accounts
-              </p>
-            </div>
+        <header className="flex items-center gap-2 border-b border-white/[0.06] bg-violet-500/[0.04] px-3 py-2">
+          <Wrench className="size-3.5 shrink-0 text-violet-300" />
+          <div className="min-w-0 flex-1">
+            <h3 className="text-[13px] font-semibold leading-tight">
+              Tools for this client
+            </h3>
           </div>
+          <span className="rounded-md bg-white/[0.05] px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
+            {toolCount}
+          </span>
         </header>
-        <div className="flex-1 overflow-y-auto px-3 py-3">{list}</div>
+        <div className="flex-1 overflow-y-auto px-2.5 pb-3 pt-2.5">{list}</div>
       </aside>
     </>
   );

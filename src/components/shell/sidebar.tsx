@@ -379,7 +379,7 @@ export function Sidebar({
             group.pinned ||
             (openGroups[group.id] ?? group.defaultOpen ?? false);
           return (
-            <div key={group.id} className="mt-3 first:mt-1">
+            <div key={group.id} className="mt-1.5 first:mt-0">
               {!collapsed && !group.pinned && (
                 <button
                   type="button"
