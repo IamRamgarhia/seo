@@ -42,6 +42,7 @@ import { apiKeys, inboundWebhooks } from "@/db/schema";
 import { desc as descSql } from "drizzle-orm";
 import { InboundWebhooksManager } from "./inbound-webhooks/manager";
 import { UpdateCard } from "./update-card";
+import { MaintainerCredit } from "@/components/shell/maintainer-credit";
 
 export default async function SettingsPage() {
   const [{ value: clientCount }] = await db
@@ -150,6 +151,7 @@ export default async function SettingsPage() {
           { href: "#data", label: "Data" },
           { href: "#install", label: "Install" },
           { href: "#privacy", label: "Privacy" },
+          { href: "#about", label: "About" },
         ].map((t) => (
           <a
             key={t.href}
@@ -513,6 +515,16 @@ export default async function SettingsPage() {
             else.
           </PrivacyLine>
         </div>
+      </section>
+
+      {/* About / maintainer credit. Separate from the white-label
+          brand.* settings, which the user uses for THEIR client-
+          facing reports. This block is "who built the tool". */}
+      <section
+        id="about"
+        className="relative overflow-hidden scroll-mt-24 rounded-2xl"
+      >
+        <MaintainerCredit variant="block" />
       </section>
     </div>
   );

@@ -24,6 +24,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { ScoreGauge } from "@/components/ui/score-gauge";
 import { AreaChart } from "@/components/ui/area-chart";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MaintainerCredit } from "@/components/shell/maintainer-credit";
 import Link from "next/link";
 import { PortfolioTrafficPanel } from "./portfolio-traffic-panel";
 import { PortfolioQuickWinsPanel } from "./portfolio-quick-wins-panel";
@@ -606,12 +607,16 @@ function FeatureHighlights() {
           </li>
         ))}
       </ul>
-      <div className="mt-auto rounded-md border border-violet-500/30 bg-violet-500/5 p-3">
-        <div className="text-xs font-medium text-violet-300">No paid APIs</div>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          Browser mode + free Google APIs cover everything. BYO key only if
-          you want premium SERP data.
-        </p>
+      <div className="mt-auto space-y-3">
+        <div className="rounded-md border border-violet-500/30 bg-violet-500/5 p-3">
+          <div className="text-xs font-medium text-violet-300">No paid APIs</div>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Browser mode + free Google APIs cover everything. BYO key only if
+            you want premium SERP data.
+          </p>
+        </div>
+        {/* Maintainer credit — subtle, links to source + support */}
+        <MaintainerCredit variant="inline" />
       </div>
     </aside>
   );
