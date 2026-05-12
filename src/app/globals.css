@@ -89,40 +89,56 @@
 }
 
 .dark {
-  /* shadcn-admin dark theme — direct port of the official shadcn-admin
-     CSS variables (https://shadcn-admin.netlify.app). Neutral zinc-ish
-     palette, off-white foreground, very subtle borders, default radius. */
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Premium SaaS palette — cool-neutral base + one owned brand accent.
+     Base picks up a hint of cool (hue 245) to avoid the muddy zinc
+     feel; brand is electric cyan, reserved for primary CTAs + active
+     states + brand mark. Status colors used SPARINGLY. */
+
+  /* Surfaces — three weights for hierarchy */
+  --background: oklch(0.13 0.012 245);     /* page canvas */
+  --foreground: oklch(0.97 0.005 245);
+  --card: oklch(0.165 0.012 245);          /* standard cards */
+  --card-foreground: oklch(0.97 0.005 245);
+  --popover: oklch(0.20 0.014 245);        /* floating chrome */
+  --popover-foreground: oklch(0.97 0.005 245);
+
+  /* Borders — barely visible by default, slightly stronger on cards */
+  --border: oklch(1 0 0 / 0.06);
+  --input: oklch(1 0 0 / 0.10);
+
+  /* THE signature accent — electric cyan, used for primary CTA + active
+     pill + brand mark. Nothing else. */
+  --primary: oklch(0.74 0.18 215);
+  --primary-foreground: oklch(0.13 0.012 245);
+  --ring: oklch(0.74 0.18 215 / 0.55);
+
+  /* Neutral interactive surfaces (hover, active rows) */
+  --secondary: oklch(0.22 0.014 245);
+  --secondary-foreground: oklch(0.97 0.005 245);
+  --muted: oklch(0.20 0.012 245);
+  --muted-foreground: oklch(0.70 0.012 245);
+  --accent: oklch(0.235 0.014 245);
+  --accent-foreground: oklch(0.97 0.005 245);
+
+  --destructive: oklch(0.70 0.20 25);
+
+  /* Chart palette — distinct hues, equal luminance for color-blind
+     readability when stacked / overlaid. */
+  --chart-1: oklch(0.74 0.18 215);   /* brand cyan */
+  --chart-2: oklch(0.74 0.16 155);   /* emerald */
+  --chart-3: oklch(0.82 0.16 75);    /* gold */
+  --chart-4: oklch(0.68 0.16 295);   /* violet — AI features */
+  --chart-5: oklch(0.70 0.20 25);    /* coral */
+
+  /* Sidebar — marginally darker than canvas so the active pill pops */
+  --sidebar: oklch(0.115 0.010 245);
+  --sidebar-foreground: oklch(0.97 0.005 245);
+  --sidebar-primary: oklch(0.74 0.18 215);
+  --sidebar-primary-foreground: oklch(0.13 0.012 245);
+  --sidebar-accent: oklch(0.22 0.014 245);
+  --sidebar-accent-foreground: oklch(0.97 0.005 245);
+  --sidebar-border: oklch(1 0 0 / 0.06);
+  --sidebar-ring: oklch(0.74 0.18 215 / 0.55);
 }
 
 @layer base {

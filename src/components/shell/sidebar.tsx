@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { motion, LayoutGroup } from "motion/react";
 import {
   LayoutDashboard,
   Users,
@@ -365,6 +366,7 @@ export function Sidebar({
       )}
 
       {/* Nav */}
+      <LayoutGroup id="sidebar-nav">
       <nav
         className={`flex-1 overflow-y-auto pb-3 ${
           collapsed ? "px-1.5" : "px-2"
@@ -415,30 +417,46 @@ export function Sidebar({
                             collapsed
                               ? `relative flex h-9 items-center justify-center rounded-md ${
                                   active
-                                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                    ? "text-sidebar-accent-foreground"
+                                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
                                 }`
                               : active
-                                ? "relative flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-sidebar-accent-foreground bg-sidebar-accent"
-                                : "relative flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                ? "relative flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-sidebar-accent-foreground"
+                                : "relative flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
                           }
                         >
+                          {/* Active background pill — animates between
+                              rows via shared layoutId so it slides
+                              smoothly when navigation changes. */}
+                          {active && (
+                            <motion.span
+                              layoutId="sidebar-active-pill"
+                              className="absolute inset-0 rounded-md bg-sidebar-accent"
+                              transition={{
+                                type: "spring",
+                                stiffness: 380,
+                                damping: 30,
+                              }}
+                            />
+                          )}
                           <Icon
-                            className={`shrink-0 size-3.5 ${
+                            className={`relative z-10 shrink-0 size-3.5 ${
                               active ? "text-foreground" : ""
                             }`}
                           />
                           {!collapsed && (
-                            <span className="flex-1 truncate">{label}</span>
+                            <span className="relative z-10 flex-1 truncate">
+                              {label}
+                            </span>
                           )}
                           {unread[href] && unread[href] > 0 ? (
                             collapsed ? (
                               <span
                                 aria-label={`${unread[href]} new`}
-                                className="absolute right-1 top-1 size-1.5 rounded-full bg-rose-500"
+                                className="absolute right-1 top-1 z-10 size-1.5 rounded-full bg-rose-500"
                               />
                             ) : (
-                              <span className="ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded bg-rose-500/15 px-1 text-[10px] font-medium text-rose-300">
+                              <span className="relative z-10 ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded bg-rose-500/15 px-1 text-[10px] font-medium text-rose-300">
                                 {unread[href] > 9 ? "9+" : unread[href]}
                               </span>
                             )
@@ -453,6 +471,7 @@ export function Sidebar({
           );
         })}
       </nav>
+      </LayoutGroup>
 
       {/* User block + live status — shadcn-admin pattern */}
       <div className="border-t border-sidebar-border">
