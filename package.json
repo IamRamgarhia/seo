@@ -1,6 +1,34 @@
 {
   "name": "seo",
   "version": "0.1.0",
+  "description": "Free, self-hosted, AI-powered SEO platform — audits, rank tracking, keyword research, content briefs, reports, ad funnels. Alternative to Ahrefs / Semrush. No paid API keys required.",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://dicecodes.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IamRamgarhia/seo.git"
+  },
+  "author": {
+    "name": "DiceCodes",
+    "url": "https://dicecodes.com"
+  },
+  "keywords": [
+    "seo",
+    "seo-tool",
+    "seo-software",
+    "self-hosted",
+    "open-source-seo",
+    "ahrefs-alternative",
+    "semrush-alternative",
+    "rank-tracker",
+    "site-audit",
+    "keyword-research",
+    "backlink-analysis",
+    "local-seo",
+    "ai-seo",
+    "geo-seo",
+    "free-seo-tool"
+  ],
   "private": true,
   "scripts": {
     "predev": "node scripts/migrate.cjs",
@@ -8,8 +36,9 @@
     "prebuild": "node scripts/migrate.cjs",
     "build": "next build",
     "start": "next start",
+    "start:daily": "node scripts/migrate.cjs && next start",
     "lint": "eslint",
-    "setup": "node scripts/migrate.cjs && playwright install chromium",
+    "setup": "node scripts/migrate.cjs && next build && playwright install chromium",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node scripts/migrate.cjs",
     "db:studio": "drizzle-kit studio",
