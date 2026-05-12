@@ -486,3 +486,17 @@ html[data-ui-mode="pro"] {
     vertical-align: middle;
   }
 }
+
+/*
+ * Embed mode — set by ?embed=1 in the URL via EmbedModeToggle. Hides
+ * the shell chrome (main sidebar, top bar, floating AI assistant +
+ * power widget + first-run prompt) so the page renders cleanly inside
+ * an iframe — the per-client tool drawer uses this to load tools
+ * without duplicating the surrounding UI.
+ */
+html[data-embed="1"] [data-shell-chrome] {
+  display: none !important;
+}
+html[data-embed="1"] main {
+  padding: 1rem !important;
+}

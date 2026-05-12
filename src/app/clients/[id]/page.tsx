@@ -57,7 +57,7 @@ import {
   reportArchives,
   clientMetricSnapshots,
 } from "@/db/schema";
-import { ClientToolsSidebar } from "./client-tools-sidebar";
+import { ClientToolsPanel } from "./client-tools-panel";
 import { DeleteClientButton } from "./delete-client-button";
 import { DailyAutomationCard } from "./daily-automation-card";
 import { inArray } from "drizzle-orm";
@@ -267,7 +267,7 @@ export default async function ClientDetailPage({
         content gets full width.
       */}
       <div className="flex flex-col gap-6 md:flex-row md:items-start">
-        <ClientToolsSidebar
+        <ClientToolsPanel
           client={{
             id: client.id,
             url: client.url,

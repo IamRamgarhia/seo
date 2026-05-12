@@ -8,6 +8,7 @@ import {
   CLIENT_TOOL_NEEDS_HINTS,
   type ClientToolsClient,
 } from "./client-tools-launcher";
+import type { OpenToolState } from "./client-tools-panel";
 
 /**
  * Per-client tool launcher as a secondary sidebar. Compact, scannable,
@@ -25,8 +26,15 @@ import {
  */
 export function ClientToolsSidebar({
   client,
+  onOpenTool,
 }: {
   client: ClientToolsClient;
+  /**
+   * Fired when the user left-clicks a tool. The sidebar passes
+   * { url, title } and the parent decides what to do (open drawer
+   * vs navigate). Modifier-clicks bypass this and follow the link.
+   */
+  onOpenTool?: (tool: OpenToolState) => void;
 }) {
   const groups = buildClientToolGroups(client);
   const [query, setQuery] = useState("");
@@ -133,7 +141,23 @@ export function ClientToolsSidebar({
                       <li key={t.href}>
                         <Link
                           href={t.href}
-                          onClick={() => setMobileOpen(false)}
+                          onClick={(e) => {
+                            setMobileOpen(false);
+                            // Only intercept plain left-click. Mod-click
+                            // (ctrl / cmd / shift / middle) keeps the
+                            // default behavior (new tab, etc.) so power
+                            // users can still fan out the standalone view.
+                            if (
+                              onOpenTool &&
+                              !e.metaKey &&
+                              !e.ctrlKey &&
+                              !e.shiftKey &&
+                              !e.altKey
+                            ) {
+                              e.preventDefault();
+                              onOpenTool({ url: t.href, title: t.title });
+                            }
+                          }}
                           className="group flex items-start gap-2 rounded-md px-1.5 py-1.5 transition-colors hover:bg-white/[0.05]"
                         >
                           <span

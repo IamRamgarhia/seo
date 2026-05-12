@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Sidebar } from "@/components/shell/sidebar";
 import { TopBar } from "@/components/shell/top-bar";
+import { EmbedModeToggle } from "@/components/shell/embed-mode";
 import { AIAssistant } from "@/components/shell/ai-assistant";
 import { PowerWidget } from "@/components/shell/power-widget";
 import { FirstRunPrompt } from "@/components/shell/first-run-prompt";
@@ -75,20 +76,27 @@ export default async function RootLayout({
       className={`dark ${sansFont.variable} ${monoFont.variable} h-full antialiased`}
     >
       <body className="h-screen overflow-hidden bg-background text-foreground">
+        <EmbedModeToggle />
         <ConfirmDialogProvider>
           <QuickAddClientProvider>
             <div className="flex h-full">
-              <Sidebar unreadByHref={unreadByHref} />
+              <div data-shell-chrome="sidebar" className="contents">
+                <Sidebar unreadByHref={unreadByHref} />
+              </div>
               <div className="flex h-full min-w-0 flex-1 flex-col">
-                <TopBar unreadByHref={unreadByHref} />
+                <div data-shell-chrome="topbar" className="contents">
+                  <TopBar unreadByHref={unreadByHref} />
+                </div>
                 <main className="flex-1 overflow-y-auto p-4 md:p-6">
                   {children}
                 </main>
               </div>
             </div>
-            <AIAssistant />
-            <PowerWidget />
-            <FirstRunPrompt />
+            <div data-shell-chrome="ambient" className="contents">
+              <AIAssistant />
+              <PowerWidget />
+              <FirstRunPrompt />
+            </div>
             <Toaster />
             <ServiceWorkerRegister />
             <ClientErrorCapture />
