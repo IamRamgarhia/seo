@@ -13,6 +13,7 @@ import { CsvImportExport } from "@/app/keywords/import-form";
 import { CheckRankButton, CheckAllRanksButton } from "@/app/keywords/rank-buttons";
 import { ScanSerpButton } from "@/app/keywords/serp-button";
 import { untrackKeyword } from "@/app/keywords/actions";
+import { RankSparkline } from "./rank-sparkline";
 
 const deviceTone: Record<string, string> = {
   desktop: "bg-violet-500/15 text-violet-300 ring-violet-500/30",
@@ -94,46 +95,6 @@ function SerpFeaturePills({
         </span>
       )}
     </div>
-  );
-}
-
-function MiniSparkline({ values }: { values: (number | null)[] }) {
-  const pts = values.filter((v): v is number => v !== null);
-  if (pts.length < 2) return null;
-  const w = 80;
-  const h = 20;
-  const max = Math.max(...pts);
-  const min = Math.min(...pts);
-  const range = max - min || 1;
-  const step = w / (pts.length - 1);
-  const points = pts
-    .map((v, i) => `${i * step},${h - ((v - min) / range) * h}`)
-    .join(" ");
-  const first = pts[0];
-  const last = pts[pts.length - 1];
-  // Lower position is better in SERPs — invert for trend color
-  const trending = last < first ? "improving" : last > first ? "dropping" : "flat";
-  const stroke =
-    trending === "improving"
-      ? "stroke-emerald-400"
-      : trending === "dropping"
-        ? "stroke-rose-400"
-        : "stroke-muted-foreground";
-  return (
-    <svg
-      viewBox={`0 0 ${w} ${h}`}
-      preserveAspectRatio="none"
-      className={`h-5 w-20 ${stroke}`}
-    >
-      <polyline
-        points={points}
-        fill="none"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
   );
 }
 
@@ -354,7 +315,12 @@ export default async function PerClientKeywordsPage({
                       />
                     </td>
                     <td className="px-3 py-3">
-                      <MiniSparkline values={history.map((h) => h.position)} />
+                      <RankSparkline
+                        history={history.map((h) => ({
+                          checkedAt: h.checkedAt,
+                          position: h.position,
+                        }))}
+                      />
                     </td>
                     <td className="px-3 py-3 text-right">
                       <div className="inline-flex items-center gap-1">
