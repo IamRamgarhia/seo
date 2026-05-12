@@ -1,20 +1,127 @@
-# SEO Tool
+<div align="center">
 
-Self-hosted, AI-powered SEO platform for freelancers and small agencies.
-Free-first — no paid API keys required to use core features.
+# Free Self-Hosted SEO Tool — Open-Source Alternative to Ahrefs & Semrush
 
-- 100+ SEO tools (audits, rank tracking, content writer, schema generator, code generator, 314 backlink prospects across 50+ countries…)
-- AI chat that can read your data + write code (WordPress plugins, .htaccess, Liquid, schema)
-- Daily agent runs 17 automated jobs per client
-- Local Ollama support — fully offline AI if you want it
+**An AI-powered, self-hosted SEO platform for freelancers, agencies, and site owners. 100+ tools — audits, rank tracking, keyword research, content briefs, backlink analysis, local SEO, AI-search visibility, paid-ads funnels, white-label reports. No paid API keys required to start. One command to install.**
+
+[![License](https://img.shields.io/badge/license-PolyForm--NC--1.0.0-amber.svg)](LICENSE)
+[![Stack](https://img.shields.io/badge/stack-Next.js%2016%20%E2%80%A2%20SQLite%20%E2%80%A2%20Playwright-cyan.svg)](#tech-stack)
+[![Self-hosted](https://img.shields.io/badge/self--hosted-yes-green.svg)](#install--pick-one)
+[![Built by](https://img.shields.io/badge/built%20by-DiceCodes-violet.svg)](https://dicecodes.com)
+
+[**Install**](#install--pick-one) · [**Features**](#what-it-does) · [**vs Ahrefs / Semrush**](#why-this-exists-instead-of-just-paying-for-ahrefs-or-semrush) · [**FAQ**](#faq) · [**License**](#license)
+
+</div>
+
+---
+
+## Why this exists (instead of just paying for Ahrefs or Semrush)
+
+| | This tool | Ahrefs | Semrush |
+|---|---|---|---|
+| **Monthly cost** | $0 self-hosted | $129–$1499 | $140–$500 |
+| **Data ownership** | Single SQLite file on your machine | Their servers | Their servers |
+| **Privacy** | Zero telemetry, zero phone-home | Tracks usage | Tracks usage |
+| **API keys required** | None (Google free tier optional) | Their subscription | Their subscription |
+| **Rank tracking limit** | Unlimited | 100–10,000 keywords | 500–5,000 keywords |
+| **Client cap** | Unlimited | 5–25 projects | 5–unlimited |
+| **AI features** | Bring your own key (Gemini free, Groq free, Ollama free local) | Built-in (chargeable) | Built-in (chargeable) |
+| **White-label reports** | Yes, free | Higher tiers only | Higher tiers only |
+| **Source available** | Yes — fork it, audit it, modify it | Closed | Closed |
+
+If you manage 1–25 client websites and are tired of paying $150–$500/month for the same data you can self-generate, this is for you.
+
+---
+
+## What it does
+
+This is the **most complete free SEO tool on GitHub** as of 2026. Every category an SEO needs in one place:
+
+### Site audits & technical SEO
+- Full-site crawl with 30+ on-page checks (titles, descriptions, headings, schema, canonical, hreflang, robots, sitemap)
+- Core Web Vitals via PageSpeed Insights API + local Lighthouse fallback
+- Schema.org structured-data validator + generator (Article, Product, LocalBusiness, FAQ, How-To, Review, Recipe, Event, Video)
+- Image optimization audit (WebP/AVIF conversion, alt text gap finder)
+- Broken-link finder, redirect-chain inspector, mixed-content detector
+- HTTPS / SSL / security-header audit (HSTS, CSP, X-Frame-Options)
+- Mobile-friendliness check, JavaScript-rendering check
+- Server-log analyzer (Nginx + Apache) — find what Googlebot + GPTBot + ClaudeBot actually crawl
+
+### Rank tracking & SERP analysis
+- Daily rank tracking, mobile vs desktop separately
+- City-level rank tracking (not just country)
+- Competitor rank tracking on the same dashboard
+- SERP-feature tracking (AI Overview, featured snippet, People Also Ask, video carousel, image pack)
+- Historical SERP screenshots with diff view
+- Striking-distance keyword finder (positions 4–15, ready to push to page 1)
+- Keyword cannibalization detector
+
+### Keyword research (truly free)
+- Google autocomplete fan-out (no API key needed — uses public endpoint)
+- People Also Ask scraping
+- Related searches extraction
+- Wikipedia + Reddit + YouTube topic discovery
+- Search-intent classifier (informational / navigational / transactional / commercial)
+- Keyword clustering by topic and intent
+- Difficulty estimate from SERP analysis
+
+### Content
+- AI-powered content brief generator (target length, headings, semantic keywords, PAA, competitor analysis)
+- Content score in real time (paste a draft, see what's missing)
+- Content gap analysis vs competitors
+- Content decay detector — pages losing traffic, ranked by recovery value
+- Editorial calendar
+- Topic cluster builder with pillar/cluster visualization
+- Plagiarism + AI-content detector before publishing
+
+### Backlinks
+- GSC backlink import (your own site's backlinks, free)
+- Ahrefs Webmaster Tools integration (free for verified sites)
+- New / lost backlink alerts
+- Toxic-link heuristic flagging + disavow file generator
+- Outreach hub with templates and reply tracking
+
+### Local SEO
+- Google Business Profile manager (direct GBP API integration)
+- Review aggregator (Google, Yelp, TripAdvisor, Trustpilot, Facebook)
+- Citation tracker with NAP-consistency checker (50+ directories)
+- Local pack visibility tracking with map view
+- Service-area page generator
+- Local schema templates by business type
+
+### AI-search visibility (the 2026 differentiator)
+- LLM-mention tracker — weekly checks across ChatGPT, Perplexity, Claude, Gemini, Google AI Overviews
+- Citation analysis — when not cited, see who is (Reddit, Wikipedia, industry pubs)
+- AI-bot crawl tracking from server logs (GPTBot, ClaudeBot, PerplexityBot frequency)
+- `llms.txt` manager — generate, validate, monitor
+- robots.txt AI-bot policy builder
+- AI-Overview presence tracker
+
+### Paid ads
+- Ad-funnel architect — Meta, Google Search / Display / Shopping, LinkedIn, TikTok, YouTube
+- Ad-copy generator with platform-specific rules
+- Keyword research for Google Ads
+- Landing-page audit for ads
+- ROAS calculator
+
+### Reports, invoicing, client management
+- White-label PDF reports with AI-generated executive summary
+- Per-client client portal with magic-link access (clients see live progress)
+- Invoice generator with INR (UPI) + USD support
+- Scheduled monthly digests via Slack / Discord / Teams / email
+- Daily agent — 17 automated jobs per client, runs in the background
+
+### Integrations
+- Google Search Console, Google Analytics 4, Google Business Profile, Bing Webmaster Tools (free OAuth)
+- WordPress plugin (read/write meta, schema, redirects)
+- Shopify, Wix, Webflow integrations
+- BYO key for OpenAI / Anthropic / Gemini / Groq / OpenRouter / DeepSeek / Perplexity / Ollama local
 
 ---
 
 ## Install — pick one
 
-### Easiest: one-line installer
-
-**No git, no Node, no setup required.** The installer downloads the code, detects Docker (preferred) or installs Node-side itself, and opens the browser when the app is ready. Idempotent — re-run anytime to upgrade.
+**One-line installer** (no Git, no Node, no setup required — auto-detects Docker, falls back to Node, finds a free port, opens browser, idempotent):
 
 **macOS / Linux:**
 ```bash
@@ -26,168 +133,142 @@ curl -fsSL https://raw.githubusercontent.com/IamRamgarhia/seo/main/install.sh | 
 iwr -useb https://raw.githubusercontent.com/IamRamgarhia/seo/main/install.ps1 | iex
 ```
 
-The installer:
-- Downloads the latest code as a ZIP into `~/seo` (no `git` needed)
-- **Auto-finds a free port** if `3000` is occupied (tries 3001-3010, 8080, 4000…)
-- If Docker is installed → uses Docker (everything bundled, no other prereqs)
-- If not → checks Node ≥ 20 and tells you exactly what to install if missing
-- Polls `/api/v1/health` until the app is actually up (typically 30-60s)
-- **Auto-opens your browser** to the right URL
-- Drops a `SEO-Tool-Welcome.txt` on your Desktop with stop / start / update / troubleshoot commands
+The installer downloads the latest code into `~/seo`, runs a one-time production build, applies database migrations, and starts the server. Daily startup after that is ~2 seconds (production mode). Re-run anytime to upgrade.
 
-To pin a specific port: `SEO_PORT=4000 curl -fsSL .../install.sh | bash`
-
-**The one thing you might need to install yourself:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) (recommended — handles everything) OR [Node.js LTS](https://nodejs.org/) (if you'd rather run native). The installer detects what you have and uses it; if neither is present, it tells you which to install.
-
----
-
-### Option A: Docker manually
-
-Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) (macOS / Windows) or `docker compose` (Linux).
-
+**Docker manually:**
 ```bash
 git clone https://github.com/IamRamgarhia/seo.git
 cd seo
-docker compose up -d                # uses port 3000
-# or pick a different port if 3000 is busy:
-SEO_HOST_PORT=4000 docker compose up -d
+docker compose up -d
 ```
 
-Open <http://localhost:3000> (or whichever port you chose). The image bundles Chromium + Playwright; no extra setup.
-
-To stop: `docker compose down`. To wipe data: `docker compose down -v`.
-
----
-
-### Option B: Native install (faster on your machine)
-
-**Prerequisites**
-- Node.js 20+ — [nodejs.org](https://nodejs.org/) (LTS is fine)
-- Git
-- ~2 GB free disk for the Playwright Chromium browser
-
-**On macOS / Linux:**
+**Native manually:**
 ```bash
 git clone https://github.com/IamRamgarhia/seo.git
 cd seo
-./scripts/setup.sh
-pnpm dev
-```
-
-**On Windows (PowerShell):**
-```powershell
-git clone https://github.com/IamRamgarhia/seo.git
-cd seo
-./scripts/setup.ps1
-pnpm dev
-```
-
-`setup` installs dependencies, downloads the Playwright Chromium binary, runs DB migrations, and creates a default `.env.local`.
-Open <http://localhost:3000>.
-
----
-
-### Option C: Manual (if the scripts don't fit your setup)
-
-```bash
-git clone https://github.com/IamRamgarhia/seo.git
-cd seo
-
-# Install dependencies (pnpm preferred — npm / yarn / bun all work)
 pnpm install
-
-# Download the headless Chromium browser used by rank/SERP tools
 pnpm exec playwright install chromium
-
-# Apply DB migrations (creates ./data.db on first run)
-node scripts/migrate.cjs
-
-# Copy the environment template
-cp .env.example .env.local
-
-# Start in dev mode
-pnpm dev
+pnpm build
+pnpm start:daily
 ```
 
 Open <http://localhost:3000>.
 
+By default the server binds to `127.0.0.1` (localhost-only) for safety. To expose on your LAN, set `APP_PASSWORD=your-password` AND `SEO_BIND_HOST=0.0.0.0`.
+
 ---
 
-## After install — first 5 minutes
+## First 5 minutes
 
-1. **Add a client** at <http://localhost:3000/clients/new> — paste a domain and let the tool detect its tech stack + niche.
-2. **Connect Google** (optional but recommended) under Settings → Integrations. See `.env.example` for one-time OAuth setup (~5 min in Google Cloud Console).
+1. **Add a client** at <http://localhost:3000/clients/new> — paste a domain, the tool detects the tech stack and niche automatically.
+2. **Connect Google** under Settings → Integrations (optional — uses free Google APIs for GSC, GA4, PageSpeed).
 3. **Pick an AI provider** under Settings → AI:
-   - **Local Ollama** — free, private, runs on your machine (install Ollama first, then it auto-connects).
-   - **Anthropic / OpenAI / Groq / Gemini / OpenRouter** — paste an API key.
+   - **Local Ollama** — free, private, fully offline
+   - **Gemini / Groq / OpenRouter** — free tiers, just paste an API key
+   - **OpenAI / Anthropic** — paid, BYO key
 4. **Run your first audit** — click "Run audit" on any client.
 
-That's it. The daily agent kicks in 24h later and runs 17 automated jobs on its own.
+The daily agent kicks in 24h later and runs ~17 automated jobs per client on its own (rank checks, audit deltas, content decay, backlink scans, GBP monitoring, etc.).
 
 ---
 
-## Common setup issues
+## Tech stack
 
-**better-sqlite3 fails to build**
-You need a C++ toolchain. On macOS: `xcode-select --install`. On Windows: install the latest Node.js with the optional "tools for native modules" checked. On Linux: `apt install build-essential python3`.
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **SQLite** (better-sqlite3) + **Drizzle ORM** — single-file database, no Postgres required for self-hosters
+- **Playwright** (headless Chromium) for rank checking + SERP scraping + GBP scraping
+- **Tailwind CSS 4** + **motion** library
+- **Satori** + **resvg-js** for OG-image generation (no headless Chrome needed)
+- **PDFKit** for reports + invoices
+- Optional: **Ollama** for local AI, **Browserless** / Cloudflare Browser Rendering for remote chromium
 
-**Playwright Chromium fails to download**
-Run `pnpm exec playwright install chromium --with-deps`. On Linux you also need: `pnpm exec playwright install-deps`.
-
-**Port 3000 already in use**
-Set the port: `PORT=3001 pnpm dev`.
-
-**"AI provider not configured"**
-Settings → AI → pick one. Local Ollama needs the [Ollama runtime](https://ollama.com/) installed separately; once `ollama serve` is running the tool detects it automatically.
+Runs on a $5/month VPS (1 GB RAM) for solo / small-agency use. See [`docs/HOSTING.md`](docs/HOSTING.md) for production hosting on Hetzner, Railway, Hostinger.
 
 ---
 
-## Optional configuration (`.env.local`)
+## FAQ
 
-All optional. Defaults work for solo / local use.
+### Is this really free?
+Yes — fully self-hostable for personal, freelance, and agency client work under the [PolyForm Noncommercial 1.0.0](LICENSE) license. No usage limits, no feature gates, no telemetry. The only thing you can't do is sell it or resell it as a paid SaaS — for that you need a paid commercial license from DiceCodes (`hello@dicecodes.com`).
 
-```dotenv
-# Where SQLite lives (default ./data.db)
-SEO_DB_PATH=./data.db
+### Can I use this for client work as a freelancer or agency?
+Yes. Charging clients for your SEO services using this tool is allowed — that's not "selling the software," it's selling your service. You can also white-label reports with your own brand.
 
-# Set this to require a password to access the UI. Leave empty for no auth
-# (recommended on localhost). Sample value below; pick your own.
-APP_PASSWORD=
+### Does it really work without any API keys?
+Yes. The tool ships with a headless Chromium browser pool that scrapes Google, DuckDuckGo, and Bing for SERPs, autocomplete, related searches, and rank checks. Adding a free Google API key (GSC, GA4, PageSpeed Insights — all free tiers) makes it faster and more accurate, but isn't required.
 
-# Bake in Google OAuth so everyone using this instance gets one-click sign-in
-# without their own Google Cloud project. See .env.example for setup steps.
-GOOGLE_OAUTH_CLIENT_ID=
-GOOGLE_OAUTH_CLIENT_SECRET=
+### How does this compare to Ahrefs / Semrush / Moz / Mangools?
+Ahrefs and Semrush have larger backlink indexes and faster SERP data because they pay for premium SERP APIs at scale. This tool uses free Google APIs + headless browsers, which is slower at huge scale but free forever. For SEOs managing 1–25 client websites, the difference rarely matters — and you'll save $1,500–$6,000/year.
 
-# Optional: pre-set AI provider keys instead of using the in-app UI
-ANTHROPIC_API_KEY=
-OPENAI_API_KEY=
-GEMINI_API_KEY=
-GROQ_API_KEY=
-PERPLEXITY_API_KEY=
-OPENROUTER_API_KEY=
+### What about SEO Panel / SerpBear / SEOnaut / OpenSEO / RustySEO?
+This tool absorbs the best ideas from each: SEO Panel's multi-client + white-label, SerpBear's rank tracking + GSC integration, SEOnaut's severity-classified audits, RustySEO's local AI + log analysis, plus genuinely new pieces (LLM-citation tracking, ad-funnel architect, content decay detector, niche-aware task templates). It's the first integrated workflow tool of its kind on GitHub.
 
-# Optional: free PageSpeed Insights key (25k requests/day free)
-PAGESPEED_API_KEY=
+### Does it work on a $5/month VPS?
+Yes. Tested on Hetzner CX11 (1 GB RAM). Daily agent + 5 clients with full rank tracking fits comfortably. The headless browser pool is the dominant resource — disable it via Settings if you only need audits + content tools.
 
-# Optional: point at a local Ollama for fully-offline AI
-OLLAMA_URL=http://localhost:11434
-```
+### Can I run this fully offline?
+Yes. Install [Ollama](https://ollama.com/) for local AI (Llama 3.2 / Phi-3 / Mistral). The tool detects it automatically. SERP scraping and Google API calls still need internet, but everything else — audits, content, schema, internal linking — runs offline.
 
----
+### How is data stored?
+A single `data.db` SQLite file in your install folder. API keys and OAuth tokens are encrypted at rest with AES-256-GCM. Backup = copy the folder.
 
-## Hosting in production
+### What's the difference between this and just hiring an SEO?
+This isn't a replacement for human strategy — it's a workflow tool that takes the manual labor out of audits, rank tracking, reporting, and content production. Most agencies use Ahrefs/Semrush + a stack of 5–10 other tools costing $300–$800/month. This collapses that stack into one self-hosted app.
 
-- **Self-host on your own machine** — Docker Compose handles everything.
-- **Hetzner Cloud** (~$28/mo, 16 GB RAM) — best price/performance for 100-1000 users.
-- **Railway** (~$5/mo Hobby, ~$20+/mo Pro) — easiest managed deploy from GitHub.
-- **Hostinger VPS** (~$5-15/mo) — cheapest if you're comfortable with manual ops.
+### Does it support languages other than English?
+Yes. Site audits + rank tracking work for any country and language (country code + BCP-47 language stored per client). Content generation respects the configured language. UI is English-only for now — translations welcome via PR.
 
-See `docs/HOSTING.md` for detailed setup per provider.
+### Why "DiceCodes"?
+That's the developer ([dicecodes.com](https://dicecodes.com)). Solo project, no VC funding, no growth team — just one person who got tired of $1,800/year Ahrefs subscriptions and built this instead.
 
 ---
 
 ## License
 
-AGPL-3.0 — open-source, self-hostable. Same license as Plausible, PostHog.
-You can fork it, deploy it, modify it. You can't take it closed-source.
+[PolyForm Noncommercial 1.0.0](LICENSE) — source-available, not OSI-open-source.
+
+**Plain English:**
+
+✅ **You can, freely:**
+- Self-host for your own SEO work (any scale)
+- Use it for paid freelance / agency client work
+- Modify, fork, and adapt the code
+- Share copies under these same terms
+- Contribute back via pull requests
+
+❌ **You cannot, without written permission:**
+- Sell this software or any derivative of it
+- Offer it as a paid hosted service (SaaS)
+- Re-license it under a different license
+- Strip the DiceCodes maintainer credit and pass it off as your own
+
+For a **commercial license** (paid SaaS hosting, white-label resale, OEM embedding), contact **hello@dicecodes.com**. Pricing is per-deployment, not per-seat.
+
+---
+
+## Star history & support
+
+If this tool saves you a Ahrefs or Semrush subscription, the cheapest way to say thanks:
+
+- ⭐ **Star this repo** — helps other SEOs discover it
+- 💜 **Tip via UPI (India)** — `dicecodes@upi`, or open the Support button in the app
+- ☕ **Buy Me A Coffee (international)** — <https://buymeacoffee.com/dicecodes>
+
+---
+
+## Built by [DiceCodes](https://dicecodes.com)
+
+Solo-built. No VC. No growth team. Just one developer trying to make SEO tooling permanently free.
+
+**Links:**
+- 🌐 Website: [dicecodes.com](https://dicecodes.com)
+- 📧 Email: `hello@dicecodes.com`
+- 🐙 GitHub: <https://github.com/IamRamgarhia/seo>
+
+---
+
+<div align="center">
+
+**Search terms this tool is built for:** free SEO tool · open source SEO software · self-hosted SEO platform · Ahrefs alternative free · Semrush alternative free · SEO tool GitHub · free rank tracker · free site audit tool · open source backlink checker · self-hosted keyword research · AI SEO tool open source · GEO SEO · AI Overview tracking · LLM citation tracking · ChatGPT SEO · Perplexity SEO · WordPress SEO plugin · Shopify SEO · local SEO software · white-label SEO reports
+
+</div>

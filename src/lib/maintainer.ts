@@ -15,6 +15,11 @@
 export const MAINTAINER = {
   name: process.env.MAINTAINER_NAME ?? "DiceCodes",
   /**
+   * Public website — anchors the maintainer credit and gives users a
+   * place to go that isn't a code host. Empty string hides the link.
+   */
+  website: process.env.MAINTAINER_WEBSITE ?? "https://dicecodes.com",
+  /**
    * Public GitHub URL. Used for "Source", "Report a bug", "Star us"
    * style links. Empty string disables the GitHub link in the UI.
    */
@@ -33,11 +38,17 @@ export const MAINTAINER = {
    */
   bmc: process.env.MAINTAINER_BMC ?? "https://buymeacoffee.com/dicecodes",
   /**
+   * Commercial-license contact. PolyForm Noncommercial allows free
+   * self-hosting for personal/agency use but bars resale or paid SaaS
+   * hosting; commercial users need a paid license — they email this.
+   */
+  contactEmail: process.env.MAINTAINER_EMAIL ?? "hello@dicecodes.com",
+  /**
    * Optional tagline shown beneath the maintainer name.
    */
   tagline:
     process.env.MAINTAINER_TAGLINE ??
-    "Free, self-hosted, no monthly bills. Built solo.",
+    "Free for self-hosting. No monthly bills. Built solo.",
 } as const;
 
 /**
