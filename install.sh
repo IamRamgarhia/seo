@@ -466,9 +466,9 @@ MSG
 fi
 
 # ---- 5. Desktop shortcuts (Linux: .desktop; macOS: .command alias) ---------
+# Launchers now live in bin/. ZIP extraction may strip +x — restore it.
 if [ -d "$DESKTOP" ] && [ "$HAS_DOCKER" != "1" ]; then
-  # Make sure both scripts are executable (ZIP extraction can strip +x)
-  chmod +x "$DIR/START.sh" "$DIR/STOP.sh" 2>/dev/null || true
+  chmod +x "$DIR/bin/START.sh" "$DIR/bin/STOP.sh" "$DIR/bin/seo.sh" 2>/dev/null || true
 
   OS="$(uname -s)"
   if [ "$OS" = "Linux" ]; then
@@ -478,7 +478,7 @@ if [ -d "$DESKTOP" ] && [ "$HAS_DOCKER" != "1" ]; then
 Type=Application
 Name=Start SEO Tool
 Comment=Start the self-hosted SEO platform by DiceCodes
-Exec=$DIR/START.sh
+Exec=$DIR/bin/START.sh
 Path=$DIR
 Terminal=false
 Categories=Network;Office;
@@ -492,7 +492,7 @@ EOF
 Type=Application
 Name=Stop SEO Tool
 Comment=Stop the running SEO Tool server
-Exec=$DIR/STOP.sh
+Exec=$DIR/bin/STOP.sh
 Path=$DIR
 Terminal=true
 Categories=Network;Office;
@@ -506,7 +506,7 @@ EOF
     START_SHORTCUT="$DESKTOP/Start SEO Tool.command"
     cat > "$START_SHORTCUT" <<EOF
 #!/bin/bash
-cd "$DIR" && ./START.sh
+cd "$DIR" && ./bin/START.sh
 EOF
     chmod +x "$START_SHORTCUT" 2>/dev/null || true
     say "Created launcher: $START_SHORTCUT"
@@ -514,7 +514,7 @@ EOF
     STOP_SHORTCUT="$DESKTOP/Stop SEO Tool.command"
     cat > "$STOP_SHORTCUT" <<EOF
 #!/bin/bash
-cd "$DIR" && ./STOP.sh
+cd "$DIR" && ./bin/STOP.sh
 read -p "Press Enter to close..."
 EOF
     chmod +x "$STOP_SHORTCUT" 2>/dev/null || true
@@ -560,8 +560,9 @@ if [ -d "$DESKTOP" ]; then
       echo "  data.db                     <- (lives in /data on the seo-data volume)"
     else
       echo "$DIR/"
-      echo "  START.sh                    <- DOUBLE-CLICK to start the server (your daily-use file)"
-      echo "  STOP.sh                     <- DOUBLE-CLICK to stop the server"
+      echo "  bin/                        <- launcher scripts (START.sh, STOP.sh)"
+      echo "    START.sh                  <- DOUBLE-CLICK to start the server"
+      echo "    STOP.sh                   <- DOUBLE-CLICK to stop the server"
       echo "  data.db                     <- your SQLite database (clients, keywords, audits - back this up)"
       echo "  .seo-encryption-key         <- AES key that decrypts your API keys (back this up too)"
       echo "  .env.local                  <- env config (APP_PASSWORD, custom env vars)"
@@ -586,9 +587,9 @@ if [ -d "$DESKTOP" ]; then
       echo "Backup:   Settings -> Backup & restore -> Download backup"
     else
       echo "Start:    Double-click 'Start SEO Tool' shortcut on your Desktop"
-      echo "          (or run: $DIR/START.sh)"
+      echo "          (or run: $DIR/bin/START.sh)"
       echo "Stop:     Double-click 'Stop SEO Tool' shortcut on your Desktop"
-      echo "          (or run: $DIR/STOP.sh)"
+      echo "          (or run: $DIR/bin/STOP.sh)"
       echo "          (or in app: profile menu -> System health -> Shutdown)"
       echo "Restart:  In the app -> profile menu -> Restart server"
       echo "Logs:     tail -f $DIR/dev-server.log"

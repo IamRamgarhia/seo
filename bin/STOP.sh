@@ -5,7 +5,8 @@
 #  Safe to run even when the server is already stopped.
 # ============================================================
 
-cd "$(dirname "$0")"
+# This launcher lives in bin/; runtime state is at the install root.
+cd "$(dirname "$0")/.."
 
 STOPPED=0
 

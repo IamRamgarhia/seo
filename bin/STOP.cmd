@@ -6,7 +6,8 @@ REM  Safe to run even when the server is already stopped.
 REM ============================================================
 
 setlocal
-cd /d "%~dp0"
+REM This launcher lives in bin/; runtime state is at the install root.
+cd /d "%~dp0\.."
 
 set "STOPPED=0"
 

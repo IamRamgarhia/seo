@@ -37,14 +37,22 @@ export async function POST(req: Request) {
 
   const cwd = process.cwd();
   const isWin = process.platform === "win32";
-  const launcher = path.join(cwd, isWin ? "seo.cmd" : "seo.sh");
+  const launcherName = isWin ? "seo.cmd" : "seo.sh";
+  // Launchers moved to bin/ for repo-root cleanliness. Old installs
+  // (pre-bin/ migration) still have them at root — try both for backward
+  // compatibility. The new path takes precedence.
+  const candidates = [
+    path.join(cwd, "bin", launcherName),
+    path.join(cwd, launcherName),
+  ];
+  const launcher = candidates.find((p) => existsSync(p));
 
-  if (!existsSync(launcher)) {
+  if (!launcher) {
     return Response.json(
       {
         ok: false,
         error:
-          "Launcher script not found. Update to the latest version, then try again.",
+          "Launcher script not found in bin/ or repo root. Re-run the install command to refresh.",
       },
       { status: 500 },
     );

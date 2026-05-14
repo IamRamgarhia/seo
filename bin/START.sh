@@ -19,7 +19,9 @@
 #                  (REQUIRES setting APP_PASSWORD in .env.local first)
 
 set -e
-cd "$(dirname "$0")"
+# This launcher lives in bin/; runtime state (.dev-server.pid,
+# .seo-port, data.db, .next, node_modules) is at the install root.
+cd "$(dirname "$0")/.."
 
 # ---- 1. Resolve PORT
 if [ -z "$PORT" ] && [ -f ".seo-port" ]; then

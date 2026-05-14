@@ -639,9 +639,12 @@ if ((Test-Path $desktop) -and (-not $hasDocker)) {
             if (Test-Path $ic) { $iconPath = $ic; break }
         }
 
+        # Launchers now live in bin/. WorkingDirectory stays at $dir
+        # (install root) so relative paths like .dev-server.pid resolve
+        # correctly even though the .cmd file itself is one level down.
         $startPath = Join-Path $desktop "Start SEO Tool.lnk"
         $startSc = $wshShell.CreateShortcut($startPath)
-        $startSc.TargetPath = Join-Path $dir "START.cmd"
+        $startSc.TargetPath = Join-Path $dir "bin\START.cmd"
         $startSc.WorkingDirectory = $dir
         $startSc.Description = "Start the SEO Tool (DiceCodes)"
         if ($iconPath) { $startSc.IconLocation = $iconPath }
@@ -650,7 +653,7 @@ if ((Test-Path $desktop) -and (-not $hasDocker)) {
 
         $stopPath = Join-Path $desktop "Stop SEO Tool.lnk"
         $stopSc = $wshShell.CreateShortcut($stopPath)
-        $stopSc.TargetPath = Join-Path $dir "STOP.cmd"
+        $stopSc.TargetPath = Join-Path $dir "bin\STOP.cmd"
         $stopSc.WorkingDirectory = $dir
         $stopSc.Description = "Stop the SEO Tool"
         if ($iconPath) { $stopSc.IconLocation = $iconPath }
@@ -684,9 +687,9 @@ Backup:   Settings -> Backup & restore -> Download backup
     } else {
 @"
 Start:    Double-click "Start SEO Tool" shortcut on your Desktop
-          (or run: $dir\START.cmd)
+          (or run: $dir\bin\START.cmd)
 Stop:     Double-click "Stop SEO Tool" shortcut on your Desktop
-          (or run: $dir\STOP.cmd)
+          (or run: $dir\bin\STOP.cmd)
           (or in app: profile menu -> System health -> Shutdown)
 Restart:  In the app -> profile menu -> Restart server (top-right power icon)
 Logs:     Get-Content "$dir\dev-server.log" -Wait -Tail 100
@@ -705,8 +708,9 @@ $dir\
     } else {
 @"
 $dir\
-  START.cmd                   <- DOUBLE-CLICK to start the server (your daily-use file)
-  STOP.cmd                    <- DOUBLE-CLICK to stop the server
+  bin\                        <- launcher scripts (START.cmd, STOP.cmd)
+    START.cmd                 <- DOUBLE-CLICK to start the server
+    STOP.cmd                  <- DOUBLE-CLICK to stop the server
   data.db                     <- your SQLite database (clients, keywords, audits, reports - back this up)
   .seo-encryption-key         <- AES key that decrypts your API keys (back this up too)
   .env.local                  <- env config (APP_PASSWORD, custom env vars)

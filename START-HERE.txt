@@ -5,9 +5,12 @@
 
 The fastest way to use this app:
 
-  Windows:        Double-click  START.cmd       (to stop: STOP.cmd)
-  Mac / Linux:    Run  ./START.sh               (to stop: ./STOP.sh)
+  Windows:        Double-click  bin\START.cmd   (to stop: bin\STOP.cmd)
+  Mac / Linux:    Run  bin/START.sh             (to stop: bin/STOP.sh)
   Docker:         docker compose up -d          (to stop: docker compose down)
+
+  Easier: use the "Start SEO Tool" / "Stop SEO Tool" shortcuts the
+  installer dropped on your Desktop. They wrap the bin/ scripts.
 
 The app opens in your browser at http://localhost:3000
 (or whichever port the installer picked - check the Desktop guide)
@@ -16,8 +19,9 @@ The app opens in your browser at http://localhost:3000
 KEY FILES IN THIS FOLDER
 ------------------------------------------------------------
 
-  START.cmd / START.sh   <- START - double-click to start the server
-  STOP.cmd  / STOP.sh    <- STOP  - double-click to stop the server
+  bin/                   <- launcher scripts (START, STOP, internal seo aliases)
+    START.cmd / START.sh   - START the server (per-platform)
+    STOP.cmd  / STOP.sh    - STOP the server (per-platform)
   COLLECT-LOGS.cmd       <- Bundle ALL logs into a zip on your Desktop
   COLLECT-LOGS.sh           when something breaks (email it to us)
   install.log            <- Output of the last installer run (errors etc)
@@ -42,10 +46,12 @@ KEY FILES IN THIS FOLDER
 COMMON COMMANDS
 ------------------------------------------------------------
 
-Start the server          Double-click  START.cmd  (Windows)
-                                        START.sh   (Mac/Linux)
-Stop the server           Double-click  STOP.cmd   (Windows)
-                                        STOP.sh    (Mac/Linux)
+Start the server          Double-click  bin\START.cmd  (Windows)
+                                        bin/START.sh   (Mac/Linux)
+                          Easier: "Start SEO Tool" desktop shortcut
+Stop the server           Double-click  bin\STOP.cmd   (Windows)
+                                        bin/STOP.sh    (Mac/Linux)
+                          Easier: "Stop SEO Tool" desktop shortcut
                           Or in app:    Profile menu -> System health -> Shutdown
 
 Something broke?          Double-click  COLLECT-LOGS.cmd  (Windows)

@@ -19,7 +19,10 @@ REM   SEO_BIND_HOST default 127.0.0.1; set 0.0.0.0 to expose on LAN
 REM                 (REQUIRES setting APP_PASSWORD in .env.local first)
 
 setlocal
-cd /d "%~dp0"
+REM This launcher lives in bin/ — all runtime state (.dev-server.pid,
+REM .seo-port, data.db, .next, node_modules) is at the install root,
+REM one level up. cd there so relative paths resolve correctly.
+cd /d "%~dp0\.."
 
 REM ---- 1. Resolve PORT (caller env > .seo-port file > 3000)
 if "%PORT%"=="" (
