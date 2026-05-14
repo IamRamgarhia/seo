@@ -87,7 +87,7 @@ function Info($m) { Write-Host "i  $m" -ForegroundColor Cyan }
 function Warn($m) { Write-Host "!  $m" -ForegroundColor Yellow }
 function Die($m)  { Write-Host "X  $m" -ForegroundColor Red; Save-LogAndExit $true; exit 1 }
 
-# DieMulti — print multi-line error WITHOUT using PowerShell here-strings.
+# DieMulti - print multi-line error WITHOUT using PowerShell here-strings.
 # Here-strings (@"..."@) break under `iwr | iex` invocation in PS 5.1:
 # the close marker `"@` isn't recognized and the parser consumes everything
 # to EOF. Using an array of strings + Write-Host avoids that entire class.
@@ -198,14 +198,35 @@ function Test-PortInUse($p) {
 $port = $defaultPort
 if (Test-PortInUse $port) {
     Warn "Port $port is occupied - finding a free one"
+    $foundFreePort = $false
     foreach ($try in @(3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010, 8080, 8081, 4000, 5000)) {
         if (-not (Test-PortInUse $try)) {
             $port = $try
+            $foundFreePort = $true
             break
         }
     }
+    if (-not $foundFreePort) {
+        DieMulti @(
+            "No free port found in the default range (3000-3010, 8080-81, 4000, 5000).",
+            "All of them are occupied - you have a lot of other servers running.",
+            "",
+            "Set SEO_PORT to a known-free port and re-run, e.g.:",
+            '  $env:SEO_PORT = "7777"',
+            "  iwr -useb https://raw.githubusercontent.com/IamRamgarhia/SEO-Tool/main/install.ps1 | iex"
+        )
+    }
 }
 Say "Using port $port"
+
+# Persist the chosen port so START.cmd / STOP.cmd pick it up on next launch.
+# Without this, the desktop shortcut tries 3000 even after the installer
+# rerouted to 3001+.
+try {
+    [System.IO.File]::WriteAllText((Join-Path $dir ".seo-port"), "$port", [System.Text.Encoding]::ASCII)
+} catch {
+    Warn "Could not write .seo-port (port persistence): $($_.Exception.Message)"
+}
 
 # ---- 3. detect Docker -------------------------------------------------------
 $hasDocker = $false
@@ -551,12 +572,18 @@ else {
     # shims, so Start-Process -FilePath "pnpm" hits "%1 is not a valid Win32
     # application". A real .cmd file works around it cleanly and avoids all
     # the quote-escaping problems of `cmd /c "long command"`.
+    #
+    # NOTE: write with WriteAllLines (no here-string). When this script is
+    # streamed through `iwr | iex` on PS 5.1, a `@"..."@` here-string here
+    # has been observed to swallow the rest of the script - same root cause
+    # we hit in Die / DieMulti.
     $runScript = if ($script:buildOk) { "start:daily" } else { "dev" }
-    @"
-@echo off
-set PORT=$port
-$pm run $runScript
-"@ | Out-File -FilePath $batFile -Encoding ASCII
+    $batLines = @(
+        "@echo off",
+        "set PORT=$port",
+        "$pm run $runScript"
+    )
+    [System.IO.File]::WriteAllLines($batFile, $batLines, [System.Text.Encoding]::ASCII)
 
     $proc = Start-Process -FilePath $batFile `
         -WorkingDirectory $dir `

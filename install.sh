@@ -38,7 +38,11 @@ exec > >(tee -a "$LOG") 2>&1
 # On any exit (success OR failure), copy the log to discoverable locations
 # and pause so the user can read the result before the terminal closes.
 on_exit() {
-  local rc=$?
+  local rc="${1:-$?}"
+  # Clean up any temp files created during download/extract. Empty if
+  # we exit before they're set.
+  [ -n "${TMP_ZIP:-}" ] && rm -rf "$TMP_ZIP" 2>/dev/null
+  [ -n "${TMP_EXTRACT:-}" ] && rm -rf "$TMP_EXTRACT" 2>/dev/null
   if [ -d "$DIR" ]; then cp "$LOG" "$DIR/install.log" 2>/dev/null || true; fi
   if [ -d "$DESKTOP" ]; then cp "$LOG" "$DESKTOP_LOG" 2>/dev/null || true; fi
   echo ""
@@ -98,7 +102,9 @@ fi
 # ---- 1. download + extract --------------------------------------------------
 TMP_ZIP="$(mktemp -t seo-tool.XXXXXX.zip)"
 TMP_EXTRACT="$(mktemp -d -t seo-tool-extract.XXXXXX)"
-trap 'rm -rf "$TMP_ZIP" "$TMP_EXTRACT"' EXIT
+# NOTE: temp files are cleaned up by on_exit() above. We do NOT re-trap EXIT
+# here — that would clobber on_exit and silence the "INSTALL FAILED" banner
+# / log copy / Press-Enter pause that on_exit provides on every exit path.
 
 say "Downloading the latest code (no git required)"
 if [ "$DOWNLOADER" = "curl" ]; then
@@ -154,16 +160,27 @@ port_in_use() {
 }
 
 PORT="$DEFAULT_PORT"
+FOUND_FREE_PORT=1
 if port_in_use "$PORT"; then
-  warn "Port $PORT is occupied — finding a free one"
+  warn "Port $PORT is occupied - finding a free one"
+  FOUND_FREE_PORT=0
   for try in 3001 3002 3003 3004 3005 3006 3007 3008 3009 3010 8080 8081 4000 5000; do
     if ! port_in_use "$try"; then
       PORT="$try"
+      FOUND_FREE_PORT=1
       break
     fi
   done
 fi
+
+if [ "$FOUND_FREE_PORT" != "1" ]; then
+  die "No free port in the default range (3000-3010, 8080-81, 4000, 5000). All occupied. Set SEO_PORT=<free port> and re-run."
+fi
+
 say "Using port $PORT"
+
+# Persist the chosen port so START.sh / STOP.sh use it next launch.
+echo "$PORT" > "$DIR/.seo-port" 2>/dev/null || warn "Could not write .seo-port (port persistence)"
 
 # ---- 4. Docker or native? ---------------------------------------------------
 HAS_DOCKER=0

@@ -7,10 +7,13 @@ FROM mcr.microsoft.com/playwright:v1.56.0-noble AS deps
 WORKDIR /app
 
 # pnpm via corepack
-RUN corepack enable && corepack prepare pnpm@10 --activate
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile=false
+COPY package.json pnpm-lock.yaml* .npmrc* ./
+# --ignore-scripts bypasses pnpm 11+'s build-script gate (we run them
+# manually via rebuild below). Same strategy as the native installer.
+RUN pnpm install --frozen-lockfile=false --ignore-scripts \
+ && pnpm rebuild
 
 # ---- build stage: TypeScript + Next.js production build ----
 FROM deps AS build
@@ -45,7 +48,7 @@ ENV RUNNING_IN_DOCKER=1
 # expose 3000 to the host as they choose in docker-compose.yml.
 ENV HOSTNAME=0.0.0.0
 
-RUN corepack enable && corepack prepare pnpm@10 --activate
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Non-root user (Playwright image already provides 'pwuser')
 USER pwuser
@@ -60,5 +63,10 @@ COPY --from=build --chown=pwuser:pwuser /app/package.json ./package.json
 
 EXPOSE 3000
 
-# Apply pending migrations on start, then boot
-CMD ["sh", "-c", "node scripts/migrate.cjs 2>/dev/null || true; node server.js"]
+# Apply pending migrations on start, then boot. Fail fast on migration
+# error — silently continuing produces a running server that 500s on
+# every DB-touching request, with no obvious clue why. Better to fail
+# the container start and surface the real SQL error in `docker logs`.
+# (migrate.cjs already exits 0 when no migrations directory exists,
+# so the fresh-volume case is fine.)
+CMD ["sh", "-c", "node scripts/migrate.cjs && node server.js"]

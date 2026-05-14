@@ -93,7 +93,11 @@ if "%SEO_BIND_HOST%"=="" set "SEO_BIND_HOST=127.0.0.1"
   echo %PM% run %RUN_CMD%
 )
 type nul > dev-server.log
-powershell -NoProfile -Command "Start-Process -FilePath '.dev-server.cmd' -WindowStyle Hidden -WorkingDirectory \"%CD%\" -RedirectStandardOutput 'dev-server.log' -RedirectStandardError 'dev-server.err.log'"
+REM Capture the spawned PID into .dev-server.pid so STOP.cmd can find
+REM and kill the process by PID (its primary kill path). Without this,
+REM STOP.cmd falls back to a port-based scan that needs elevation on
+REM some Windows configs.
+powershell -NoProfile -Command "$p = Start-Process -FilePath '.dev-server.cmd' -WindowStyle Hidden -WorkingDirectory \"%CD%\" -RedirectStandardOutput 'dev-server.log' -RedirectStandardError 'dev-server.err.log' -PassThru; if ($p) { $p.Id | Out-File '.dev-server.pid' -Encoding ascii -Force }"
 
 echo Starting SEO Tool on port %PORT%...
 echo (first launch can take 30-90 seconds while it compiles)

@@ -151,6 +151,22 @@ export async function POST(req: Request) {
     );
   }
 
+  // ZIP installs have no .git directory. Detect this and steer the user
+  // to the right command instead of letting `git fetch` fail mid-flow
+  // with a confusing "fatal: not a git repository" error.
+  try {
+    await exec("git", ["rev-parse", "--git-dir"], { cwd: process.cwd() });
+  } catch {
+    return Response.json(
+      {
+        ok: false,
+        error:
+          "This install is not a git repository (ZIP installer was used). To upgrade, re-run the one-line install command from the README — it auto-detects existing installs and refreshes in place, preserving your data.db.",
+      },
+      { status: 400 },
+    );
+  }
+
   const steps: Step[] = [];
   let restartRecommended = false;
 

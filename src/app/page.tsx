@@ -57,10 +57,17 @@ function greetingForHour(hour: number) {
 export default async function DashboardPage() {
   // Fire-and-forget schedulers — each has its own cooldown so they're
   // no-ops on most renders. Failures don't block the dashboard.
-  tickScheduleRunner().catch(() => {});
-  tickPageMonitorRunner().catch(() => {});
-  tickDailyAgent().catch(() => {});
-  tickWeeklyDigestRunner().catch(() => {});
+  //
+  // Wrap each in try/catch in addition to .catch() because if the tick
+  // function itself THROWS synchronously (e.g. native module fails to
+  // load, DB binding missing on a half-built install), .catch() doesn't
+  // help — the throw escapes the await chain entirely and 500s the
+  // whole dashboard. The dashboard MUST always render so users can
+  // see what's wrong.
+  try { tickScheduleRunner().catch(() => {}); } catch {}
+  try { tickPageMonitorRunner().catch(() => {}); } catch {}
+  try { tickDailyAgent().catch(() => {}); } catch {}
+  try { tickWeeklyDigestRunner().catch(() => {}); } catch {}
 
   const [{ value: clientCount }] = await db
     .select({ value: count() })

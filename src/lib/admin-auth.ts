@@ -46,25 +46,31 @@ function isLocalIp(ip: string): boolean {
 }
 
 function isLocalRequest(req: Request): boolean {
-  // 1. Prefer forwarding headers — these are set by reverse proxies
-  //    AND reflect the real client address. Spoofable only if your
-  //    proxy is misconfigured to pass them through from untrusted
-  //    clients, which is outside this guard's threat model.
-  const fwdFor = req.headers
-    .get("x-forwarded-for")
-    ?.split(",")[0]
-    ?.trim();
-  if (fwdFor) return isLocalIp(fwdFor);
+  // 1. Forwarding headers ONLY trusted when TRUSTED_PROXY=1.
+  //    Without a known reverse proxy, x-forwarded-for / x-real-ip are
+  //    fully caller-controlled — any local process can `curl -H
+  //    "x-forwarded-for: 127.0.0.1"` and bypass us. The default deploy
+  //    binds to 127.0.0.1 (so only same-machine processes can reach
+  //    the socket anyway), making the Host-header check below safe
+  //    enough. Users running behind nginx / Caddy / Cloudflare set
+  //    TRUSTED_PROXY=1 to opt into header trust.
+  if (process.env.TRUSTED_PROXY === "1") {
+    const fwdFor = req.headers
+      .get("x-forwarded-for")
+      ?.split(",")[0]
+      ?.trim();
+    if (fwdFor) return isLocalIp(fwdFor);
 
-  const realIp = req.headers.get("x-real-ip")?.trim();
-  if (realIp) return isLocalIp(realIp);
+    const realIp = req.headers.get("x-real-ip")?.trim();
+    if (realIp) return isLocalIp(realIp);
+  }
 
-  // 2. No forwarding header. We're either talking directly to the
-  //    Next.js socket (which we've bound to 127.0.0.1, so by definition
-  //    the request is local) or behind a proxy that didn't set headers
-  //    (rare and misconfigured). In both cases the Host header gives a
-  //    weak but reasonable signal — but ONLY when combined with the
-  //    fact that the socket binding is local.
+  // 2. No (or untrusted) forwarding headers. We're either talking
+  //    directly to the Next.js socket (which we've bound to 127.0.0.1,
+  //    so by definition the request is local at the socket layer) or
+  //    behind a proxy that didn't set forwarding headers. In both
+  //    cases the Host header gives a weak signal — but ONLY when
+  //    combined with the fact that the socket binding is local.
   const hostHeader = req.headers.get("host") ?? "";
   const hostname = hostHeader.split(":")[0].toLowerCase();
   if (LOCAL_HOSTS.has(hostname)) return true;
